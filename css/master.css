@@ -1,0 +1,48 @@
+* {
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+body {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+input, button {
+  background: none;
+  border: none;
+  outline: none;
+}
+
+button {
+  cursor: pointer;
+}
+
+p {
+  margin: 0;
+}
+
+header {
+  background-color: rgb(93, 93, 93);
+  width: 100%;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+main {
+  background: rgb(223, 223, 223);
+  width: 100%;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+main.vertical {
+  flex-direction: column;
+}
