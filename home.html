@@ -12,167 +12,18 @@
 </head>
 
 <body>
-  <header>
-    <div class="logo welcome">
-      <img src="assets/logo.png" alt="">
-      <span class="name-msg">
-        <p>Bem vindo(a) de volta, </p>
-        <button type="button">
-        <img id="msg" onclick="toggleMsg()" src="assets/close-envelope.svg" alt="">
-        <div id="msg-box" hidden>
-          <h3>Notificações</h3>
-          <div class="messages">
-
-          </div>
-        </div>
-      </button>
-      </span>
-      <div class="progress">
-        <h2 id="currentLevel">Nível </h2>
-        <div id="progressBarBg">
-          <div id="progressBar"></div>
-        </div>
-        <h4 id="currentXP"></h4>
-      </div>
-    </div>
-    <div class="logout">
-      <button type="button" class="wine" onclick="logout()">Sair</button>
-    </div>
-    <div id="CPoints">
-      <h3 title="Quantas correções você pode fazer">Pontos de correção: </h3>
-    </div>
-  </header>
   <main>
-    <a class="activityButton purple" href="editor.html">
-      <img src="assets/coding.svg" alt="">
-      Acessar o editor
-    </a>
-    <a class="activityButton rose" id="repo" target="_blank">
-      <img src="assets/desktop.svg" alt="">
-      Ir para repositório
-    </a>
-    <a class="activityButton green" href="atividades.html">
-      <img src="assets/checklist.svg" alt="">
-      Atividades
-    </a>
-    <a class="activityButton orange" href="material-suporte.html">
-      <img src="assets/book.svg" alt="">
-      Material de suporte
-    </a>
+    <a href="#">
+    <h1>Gerenciar cursos</h1>
+  </a>
+    <a href="/atividades.html">
+    <h1>Gerenciar atividades</h1>
+  </a>
+    <a href="#">
+    <h1>Gerenciar alunos</h1>
+  </a>
   </main>
   <script type="text/javascript">
-  function getLevel(currXP) {
-  let level = 0;
-  let xp = currXP;
-  while (xp > 0) {
-      xp -= 100 + level * 50;
-      level++;
-  }
-  return level;
-}
-
-    function toggleMsg() {
-      $("#msg-box").toggle()
-      return false;
-    }
-
-    function del(msgId, i) {
-      $.ajax({
-        type: "delete",
-        url: 'https://localhost/api/students/' + localStorage.userId + '/notifications/' + msgId + '?access_token=' + localStorage.access_token,
-        crossDomain: true,
-        success: function(responseData, textStatus, jqXHR) {
-          $(".message:eq(" + i + ")").remove()
-        },
-        error: function(responseData, textStatus, errorThrown) {
-          console.log(responseData);
-        }
-      })
-    }
-
-    $(document).on('click', function(evt) {
-        if(!$(evt.target).is('#msg') &&
-        !$(evt.target).is('.message a') &&
-        !$(evt.target).is('.message') &&
-        !$(evt.target).is('.delete-msg') &&
-        $('#msg-box').is(':visible')) {
-          $('#msg-box').hide()
-          return false;
-        }
-    });
-
-    $(document).ready(function() {
-      if (location.href.includes('code=')) {
-        const token = location.href.split('code=')[1];
-        $.ajax({
-          type: 'patch',
-          url: 'https://localhost:443/api/students/' + localStorage.userId + '?access_token=' + localStorage.access_token,
-          crossDomain: true,
-          data: {
-            githubAccessToken: token
-          },
-          success: function(responseData, textStatus, jqXHR) {
-            console.log(responseData);
-          },
-          error: function(responseData, textStatus, errorThrown) {
-            console.log(responseData);
-          }
-        })
-      }
-      if (!localStorage.access_token) {
-        localStorage.removeItem('userId');
-        localStorage.removeItem('access_token');
-        location.href = '/index.html'
-      } else {
-        $.ajax({
-          type: 'GET',
-          url: 'https://localhost:443/api/students/' + localStorage.userId + '?filter=%7B%22include%22%3A%20%22notifications%22%7D&access_token=' + localStorage.access_token,
-          crossDomain: true,
-          success: function(responseData, textStatus, jqXHR) {
-            const n = getLevel(responseData.XPPoints);
-            localStorage.setItem("courseId", responseData.courseId);
-            if (responseData.username) {
-              localStorage.setItem('user', JSON.stringify(responseData));
-              $('.welcome p').append(responseData.username);
-              $("#repo").attr("href", "http://www.github.com/" + responseData.username + '/marvin')
-              $('#currentLevel').append(getLevel(responseData.XPPoints))
-              $('#CPoints h3').append(responseData.correctionPoints)
-              $('#currentXP').append(Math.floor(responseData.XPPoints - (50 * ((n * (n+1)) / 2 - 1))) + '/' + 50 * (n + 1))
-              $('#progressBar').width(eval($('#currentXP').html())*$(document).width()*0.3)
-              responseData.notifications.map((msg, i) => {
-                let btn = '';
-                if (msg.targetURL === '#') {
-                  btn = `<span class="delete-msg" onclick="del('${msg.id}', ${i})">&times;</span>`
-                }
-
-                $("#msg-box .messages").append(
-                  '<div class="message">' +
-                  btn +
-                  `<a href="${msg.targetURL}">` +
-                    msg.message +
-                  '</a></div>'
-                )
-              })
-              if (!responseData.notifications.length) $('#msg').hide();
-            } else {
-              location.href = '/github-link.html';
-            }
-          },
-          error: function(responseData, textStatus, errorThrown) {
-            alert('Algo deu errado. Faça o login novamente');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('access_token');
-            location.href = '/index.html';
-          }
-        })
-      }
-    })
-
-    function logout() {
-      localStorage.removeItem('userId');
-      localStorage.removeItem('access_token');
-      location.href = '/index.html'
-    }
 
   </script>
 </body>

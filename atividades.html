@@ -5,232 +5,173 @@
   <meta charset="utf-8">
   <link rel="stylesheet" href="/css/master.css">
   <link rel="stylesheet" href="/css/index.css">
-  <link rel="stylesheet" href="/css/collapsable.css">
   <link rel="shortcut icon" href="assets/favicon.ico">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <title>Atividades</title>
 </head>
 
 <body>
-  <div id="saveDialog" style="display:none">
-    <div class="dialog">
-      <button onclick="closeDialog()" id="closeButton">&times;</button>
-      <h2 class="loading">
-        Verificando arquivos...
-      </h2>
-      <div id="finish" style="display:none;">
-        <h2 id="all-ok" style="display:none;">
-          Ótimo, todos os arquivos estão no git.
-        </h2>
-        <h2 id="error-file" style="display:none;">
-          Oops, parece que o seguinte arquivo está faltando: <span></span>.
-        </h2>
-        <h3>
-          Escolha quem vai te corrigir e finalize a atividade
-        </h3>
-        <select id="corrector">
-          <option disabled selected value></option>
-        </select>
-        <div class="buttons">
-          <button onclick="finish()" class="green">
-            Finalizar
-          </button>
-        </div>
-      </div>
+  <main class="vertical">
+    <div id="selection">
+      <h3>Selecionar curso:</h1>
+      <select id="courses">
+        <option disabled selected value></option>
+      </select>
+      <h3>Selecionar atividade:</h1>
+      <select id="activities">
+        <option disabled selected value></option>
+      </select>
     </div>
-  </div>
-  <header class="header editor">
-    <a class="white_back" href="/home.html">
-      &#11013;
-    </a>
-    Atividades
-  </header>
-  <main class="vertical" id="atividades">
-    <h1 id="course_name"></h1>
-    <div id="activities">
+    <div id="activity">
+      <h2>ATIVIDADE</h2>
+      <div class="row">
+        <p>Título: </p>
+        <input type="text" id="name">
+      </div>
+      <div class="row">
+        <p>Descrição: </p>
+        <input type="text" id="description" size="60">
+      </div>
+      <div class="row">
+        <p>Nota mínima: </p>
+        <input type="text" id="minGrade" size="10">
+      </div>
+      <div class="row">
+        <p>PDF: </p>
+        &nbsp;
+        <a href="" target="_blank" id="link">link</a>
+        &nbsp;
+        &nbsp;
+        &nbsp;
+        <input type="file" id="PDFupload" onchange="changefile()">
+      </div>
+      <h2>Exercícios</h2>
+      <div id="exercises">
+      </div>
+      <button type="button" onclick="send()">SALVAR MUDANÇAS</button>
     </div>
   </main>
-  <footer>
-    <div class="finish">
-      <div class="doing">
-        <p>
-          Você está fazendo a fase
-        </p>
-        <button onclick="checkFiles()" class="green">
-          Finalizar
-        </button>
-      </div>
-      <div class="correction" hidden>
-        <p>
-          Parabéns, você terminou essa fase! Sua correção será por
-        </p>
-        <button onclick="cancelCorrection()" class="wine">
-          Cancelar
-        </button>
-      </div>
-    </div>
-  </footer>
   <script type="text/javascript">
-    let studentActivityId;
-    let students;
-    let lastActivity = {};
+  let courses;
+  let course;
+  let activity;
+  let changes;
 
-    function checkFiles() {
-      $('#saveDialog').toggle();
-      $.ajax({
-        type: "get",
-        url: 'https://localhost/api/studentActivities/' + studentActivityId + '/checkFiles?access_token=' + localStorage.access_token,
-        crossDomain: true,
-        success: function(res, txt, jqXHR) {
-          $(".loading").hide();
-          $("#finish").show();
-          $("#all-ok").show();
-        },
-        error: function(responseData, textStatus, errorThrown) {
-          $(".loading").hide();
-          $("#finish").show();
-          $("#error-file").show();
-          $("#error-file span").html(responseData.responseJSON.error.message.split(" ")[3])
-        },
-      });
-    }
+  $('select#courses').on('change', function() {
+    course = courses[this.value];
+    courses[this.value].activities.map((e, i) => {
+      $('select#activities').append(
+        '<option value=' + i + '>' + i + " - " + e.name + '</option>'
+      );
+    })
+  });
 
-    function finish() {
-      $.ajax({
-        type: 'put',
-        url: 'https://localhost/api/studentActivities/' + studentActivityId + '/finish?access_token=' + localStorage.access_token,
-        data: {userId: $('select#corrector').val()},
-        crossDomain: true,
-        success: function(res, txt, jqXHR) {
-          console.log(res);
-          alert("Sua atividade foi finalizada. Continue para a correção com " + res.corrector.username)
-          closeDialog();
-          location.reload();
-        },
-        error: function(res, txt, jqXHR) {
-          console.log(res, txt);
-          if (res.responseJSON.error.message === "atividade já finalizada") {
-            alert('Você já terminou a atividade');
-          } else if (res.responseJSON.error.message === 'pontos de correção insuficientes') {
-            alert('Pontos de correção insuficientes! Você deve corrigir seus colegas para conseguir mais pontos e continuar');
-          } else alert('Algo deu errado, tente novamente.');
-        },
-      });
-    }
-
-    function closeDialog() {
-      $('#saveDialog').toggle();
-      $(".loading").toggle();
-      $("#finish").toggle();
-      $("#all-ok").hide();
-      $("#error-file").hide();
-    }
-
-    function getCorrector(id) {
-      $.ajax({
-        type: 'GET',
-        url: 'https://localhost/api/students/' + id + '/username?access_token=' + localStorage.access_token,
-        crossDomain: true,
-        success: function(res, textStatus, jqXHR) {
-          $('.correction p').append(res);
-        },
-        error: function(responseData, textStatus, errorThrown) {
-          console.log(responseData.data);
-        }
-      })
-    }
-
-    function getCourseActivities(courseId, currentLevel) {
-      $.ajax({
-        type: 'GET',
-        url: 'https://localhost/api/courses/' + courseId + '?filter=%7B%22include%22%3A%20%5B%22students%22%2C%20%22activities%22%5D%7D&access_token=' + localStorage.access_token,
-        crossDomain: true,
-        success: function(res, textStatus, jqXHR) {
-          res.students.map(e => {
-            if (e.id !== localStorage.userId && e.username && e.id !== lastActivity.correctorId)
-              $('select#corrector').append('<option value='+e.id+'>'+e.username+'</option>');
-          })
-          $('#course_name').append(res.name);
-          res.activities.map((r, i) => {
-            let position;
-            if (i < currentLevel) {
-              position = 'done';
-            } else if (i === currentLevel) {
-              position = 'current';
-            } else {
-              position = 'disabled';
-            }
-            $('#activities').append('<div class="wrap-collabsible ' + position + '">' +
-              '<input id="' + r.id + '" class="toggle" type="checkbox">' +
-              '<label for="' + r.id + '" class="lbl-toggle">fase ' + i + '</label>' +
-              '<div class="collapsible-content">' +
-              '<div class="content-inner">' +
-              '<h2>' + r.name + '</h2>' +
-              '<p>' +
-              r.description +
-              '</p>' +
-              '<a href="' + r.PDFurl + '" target="_blank" class="PDFlink">Ver desafios da fase</a>' +
-              '</div>' +
-              '</div>' +
-              '</div>')
-            if (position === 'disabled') $('#' + r.id).attr('disabled', true);
-            if (position === 'current') $('#' + r.id).attr('checked', true);
-          })
-        },
-        error: function(responseData, textStatus, errorThrown) {
-          console.log(responseData);
-        }
-      })
-    }
-
-    function cancelCorrection() {
-      const retVal = confirm("Tem certeza que quer cancelar a correção?");
-      if(retVal == true ){
-        $.ajax({
-          type: 'put',
-          url: 'https://localhost/api/studentActivities/' + studentActivityId + '/cancelCorrection?access_token=' + localStorage.access_token,
-          crossDomain: true,
-          success: function (res, txt, jqXHR) {
-            console.log(res);
-            location.reload();
-          },
-          error: function (err, txt, errorThrown) {
-            console.log(err);
-            if (err.status === 403) {
-              alert('Sua correção já foi iniciada. Você não pode mais cancelar');
-            }
-          }
-        })
-      }
+  function str(data) {
+    let a = JSON.stringify(data);
+    a = a.replace(/\'/g, "\"");
+    if (typeof data === "object")
+      return a;
+    else if (typeof data === "string")
+      return `"` + data + `"`;
+    else
+      return data;
   }
 
-    $(document).ready(function() {
-      $.ajax({
-        type: 'GET',
-        url: 'https://localhost/api/students/' + localStorage.userId + '?filter=%7B%22include%22%3A%22studentActivities%22%7D&access_token=' + localStorage.access_token,
-        crossDomain: true,
-        success: function(res, textStatus, jqXHR) {
-          const currentActivity = res.studentActivities[res.studentActivities.length - 1];
-          lastActivity = res.studentActivities[res.studentActivities.length - 2] || {correctorId: ''};
-          studentActivityId = currentActivity.id;
-          if (currentActivity.correctorId) {
-            $('.doing').hide();
-            $('.correction').show();
-            getCorrector(currentActivity.correctorId);
-          };
-          if (res.username) {
-            $('.doing p').append(res.activityNumber);
-            getCourseActivities(res.courseId, res.activityNumber);
-          } else {
-            location.href = '/home.html';
+  function parse(str) {
+    if (Array.isArray(eval(str)) || typeof eval(str) !== 'object')
+      return eval(str);
+    else
+      return JSON.parse(str);
+  }
+
+  function changefile() {
+    const formData = new FormData();
+    var file = document.getElementById('PDFupload').files[0];
+    console.log(file);
+    formData.append('file', file)
+    if (!activity) return alert('Você deve selecionar uma atividade primeiro!');
+    alert('Aguarde até a conclusão, pode demorar um pouco!');
+    $.ajax({
+      type: "post",
+      url: "https://localhost/api/activities/" + activity.id + "/upload?access_token=" + localStorage.access_token,
+      data: formData,
+      enctype: 'multipart/form-data',
+      crossDomain: true,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function (res) {
+        console.log(res);
+        alert('Upload concuído!')
+      },
+      error: function (res) {
+        console.log(res);
+      }
+     })
+  }
+
+  $('select#activities').on('change', function() {
+    activity = course.activities[this.value];
+    changes = activity;
+    $("#link").attr("href", activity.PDFurl);
+    $("#minGrade").val(activity.minGrade);
+    $("#name").val(activity.name);
+    $("#description").val(activity.description);
+    $("#exercises").empty();
+    activity.exercises.map((e, i) => {
+      $("#exercises").append(
+        `<div id="ex${i}" class="test">
+        <div class="row">
+          <p>Nome do arquivo: </p>
+          <input type="text" value="${e.file}" size="30" id="nameEx${i}">
+        </div>`
+      );
+      e.tests.map((t, idx) => {
+        $(`#ex${i}`).append(`
+          <div>
+            <h3>Teste ${idx + 1}:</h3>
+        `);
+        for (prop in t) {
+          if (t.hasOwnProperty(prop)) {
+            $(`#ex${i}`).append(`<div class="row">
+              <p>${prop}: </p>
+              <input type="text" id="ex${i}test${idx + 1}${prop}" value='${str(t[prop])}'   />
+            </div>`);
           }
-        },
-        error: function(responseData, textStatus, errorThrown) {
-          alert('Algo deu errado.');
-          history.back();
         }
       })
+      $(`#ex${i}`).append('</div>');
+    });
+  });
+
+  $(document.body).on('keyup', "input[type='text']", function() {
+         console.log($(this).attr("id"), $(this).val());
+         const pars = $(this).attr("id").match(/^ex(\d+).+(\d+)(.+)$/);
+         const fileName = $(this).attr("id").match(/Ex(\d+)$/);
+         if (pars) {
+           changes.exercises[pars[1]].tests[pars[2] - 1][pars[3]] = parse($(this).val());
+         } else if (fileName) {
+           changes.exercises[fileName[1]].file = $(this).val();
+         } else {
+           changes[$(this).attr("id")]= $(this).val()
+         }
+     });
+
+  $(document).ready(function() {
+    $.ajax({
+      url: 'https://localhost/api/courses/?filter=%7B%22include%22%3A%20%5B%22students%22%2C%20%22activities%22%5D%7D&access_token=' + localStorage.access_token,
+      crossDomain: true,
+      success: function(res, textStatus, jqXHR) {
+        courses = res;
+        res.map((e, i) => {
+          $('select#courses').append('<option value='+i+'>'+e.name+'</option>');
+        });
+      },
+      error: function(responseData, textStatus, errorThrown) {
+        console.log(responseData);;
+      }
     })
+  })
 
   </script>
 </body>

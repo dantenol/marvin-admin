@@ -1,31 +1,3 @@
-.activityButton {
-  width: 20%;
-  text-align: center;
-  padding: 24px;
-  background-color: #707070;
-  transition: 0.2s;
-  font-size: 24px;
-}
-
-.activityButton:hover {
-  box-shadow: 2px 2px 5px 0px rgb(144, 144, 144);
-}
-
-.activityButton img {
-  width: 100%;
-}
-
-#atividades {
-  margin-bottom: 112px;
-}
-
-.logo.welcome {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-}
-
 .logout {
   position: absolute;
   top: 16px;
@@ -35,17 +7,6 @@
 .logout button {
   font-size: 24px;
   text-transform: uppercase;
-}
-
-.welcome p {
-  color: #5dff43;
-  font-size: 24px;
-  padding-top: 8px;
-}
-
-.logo img {
-  width: 160px;
-  height: auto;
 }
 
 main.fullwidth {
@@ -92,88 +53,10 @@ main.fullwidth {
   cursor: pointer;
 }
 
-.header {
-  border-bottom: 1px solid #5a5a5a;
-}
-
-.header.editor {
-  background: #31332c;
-  color: rgb(193, 193, 193);
-  padding: 8px;
-  font-size: 24px;
-  display: flex;
-  justify-content: flex-start;
-}
-
-.header.console {
-  background: #a4a4a4;
-  color: #292929;
-  padding: 8px;
-  font-size: 24px;
-  padding-left: 41px;
-  padding-right: 41px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.footer {
-  height: 83px;
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  background-color: #373a32;
-}
-
-.footer button,
-.finish button {
-  border: solid 2px;
-  padding: 8px;
-  font-size: 24px;
-}
-
-.finish {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-  background-color: rgb(107, 107, 107);
-  padding: 32px;
-  font-size: 24px;
-}
-
-.correction {
-  display: contents;
-}
-
-.footer button:hover,
-.finish button:hover,
-.dialog button:hover {
-  background: #747969;
-}
-
-.doing,
-.done {
-  all: inherit;
-}
-
 .container {
   display: flex;
   width: 100%;
   height: 100%;
-}
-
-.half {
-  width: 50%;
-  height: 100%;
-}
-
-#editor {
-  width: 100%;
-  height: calc(100vh - 129px);
 }
 
 .ace_editor * {
@@ -210,368 +93,54 @@ main.fullwidth {
   color: #c90000;
 }
 
-.clear:hover {
-  background: #747969;
-}
-
-#log {
-  padding: 8px;
-  max-width: 100%;
-  word-wrap: break-word;
-  overflow-y: auto;
-  max-height: calc(100vh - 45px);
-}
-
-.log.error {
-  color: red;
-}
-
-.log::before {
-  content: ">";
-  padding-right: 8px;
-}
-
-#saveDialog {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  background: rgba(203, 203, 203, 0.88);
-  z-index: 5;
-}
-
-#saveDialog .dialog {
-  max-width: 50vw;
-  background: rgb(89, 89, 89);
-  color: white;
-  padding: 24px;
-  box-shadow: 0 0 20px 2px white;
-  text-align: center;
-  min-width: 486px;
-}
-
-#saveDialog img {
-  fill: red;
-  width: 22px;
-}
-
 .buttons button,
 .githubPath button {
   border: solid 2px;
   font-size: 24px;
 }
 
-#closeButton {
-  border: none;
-  color: red;
-  font-size: 30px;
-  position: relative;
-  right: -212px;
-  top: -16px;
-}
-
-.githubPath input {
-  background: white;
-  border: 2px solid rgb(154, 154, 154);
-  border-radius: 2px;
-  margin-top: 16px;
-  font-size: 20px;
-  padding: 8px;
-}
-
-select#corrector,
-select#file {
+select, #activity input[type="text"] {
   background: white;
   padding: 2px;
   margin: 16px;
-  font-size: 20px;
-  margin: 1px solid black;
+  font-size: 16px;
+  border: 1px solid black;
 }
 
-#content .post {
-  background-color: white;
-  padding: 16px;
-  margin-top: 32px;
+#selection, #activity {
+  text-align: center;
 }
 
-#content .post * {
-  font-family: monospace;
-  font-size: 20px;
-}
-
-#content .post a:link {
-  color: rgb(39, 50, 148);
-}
-
-#content .post a:visited {
-  color: rgb(39, 50, 148);
-}
-
-#content .post .link {
-  background-color: rgb(170, 170, 170);
-  padding: 4px;
-}
-
-#content .post p {
-  margin-bottom: 16px;
-}
-
-.progress {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-#progressBarBg {
-  width: 30vw;
-  height: 8px;
-  background-color: #b1b1b1;
-}
-
-#progressBar {
-  height: 8px;
-  background-color: rgb(27, 147, 46);
-}
-
-.name-msg {
+#selection {
   display: inherit;
 }
 
-#msg {
-  height: 32px;
-  width: auto;
-  margin-left: 8px;
-  margin-top: 6px;
-  display: block;
-}
-
-#msg-box {
-  position: absolute;
-  background: #ececec;
-  border: 1px solid #858585;
-  box-shadow: 2px 2px 5px #404040;
-  border-radius: 4px;
-  margin-top: 16px;
-  width: 250px;
-  top: 215px;
-}
-
-#msg-box:after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 20px;
-  width: 0;
-  height: 0;
-  border: 10px solid transparent;
-  border-bottom-color: #ececec;
-  border-top: 0;
-  margin-left: -10px;
-  margin-top: -10px;
-}
-
-div.message {
-  padding: 8px;
-  display: block;
-  border-top: 1px solid #5c5c5c;
-  text-align: left;
-}
-div.message a {
-  text-decoration: none;
-  color: black;
-  font-size: 16px;
-}
-
-div.message .date {
-  font-size: 12px;
-  color: #6a6a6a;
-}
-
-div.message:hover {
-  background-color: #adadad;
-}
-
-header.intro-text {
-  display: block;
-  background-color: #acacac;
-}
-
-#questions {
-  display: block;
-}
-
-#questions .question .text {
-  flex: 1;
-  padding: 8px;
-}
-
-#questions .question input[type="radio"],
-.comments .question input[type="checkbox"] {
-  display: none;
-}
-
-#questions .question label,
-.comments .question label {
-  border: 1px solid #00a032;
-  background: white;
-  padding: 16px;
-  color: #00a032;
-  cursor: pointer;
-  min-width: 200px;
-  float: left;
-  text-align: center;
-  flex: 1;
-}
-
-.container #questions input:checked + label,
-.container .comments input:checked + label {
-  border: 1px solid white;
-  background: #00a032;
-  color: white;
-  font-weight: bold;
-}
-
-textarea[name="comments"] {
+#activity {
   width: 100%;
-  padding: 8px;
-  font-size: 20px;
+  background: #cecece;
 }
 
-#questions .question label:first-of-type,
-.comments .question label:first-of-type {
-  border-radius: 8px 0 0 8px;
-  border-right: none;
-}
-
-#questions .question label:last-of-type,
-.comments .question label:last-of-type {
-  border-radius: 0 8px 8px 0;
-}
-
-.content .container {
-  width: 900px;
-  display: block;
-}
-
-#finish-correction {
-  color: white;
-  background: #00a032;
-  border-radius: 8px;
-  padding: 20px;
-  font-size: 20px;
-  float: right;
-  margin-top: 24px;
-}
-
-#feedback-questions .question {
-  display: flex;
-  flex-direction: column;
-}
-
-#feedback-questions .question .picker {
+#activity .row {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
   align-items: center;
+  justify-content: center;
 }
 
-#feedback-questions .question .picker .radios {
-  background: #c5c5c5;
-  flex: 4;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: 48px;
+#exercises .test:nth-child(odd){
+  background-color: #bdbdbd;
 }
 
-.picker p {
-  flex: 1;
-  text-align: center;
+#activity p {
+  font-size: 20px;
 }
 
-.picker input[type="radio"] {
-  display: none;
-  margin: 0;
-}
-
-.radios label {
-  border: 2px solid #00af35;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  position: relative;
-  cursor: pointer;
-}
-
-.picker input[type="radio"] + label::after {
-  content: "";
-  display: block;
-  position: absolute;
-  width: 0;
-  height: 0;
-  top: 13px;
-  left: 13px;
-  border-radius: 50%;
-  background: #00af35;
-  transition: all 0.1s ease;
-}
-
-.picker input[type="radio"]:checked + label::after {
-  width: 14px;
-  height: 14px;
-  top: 3px;
-  left: 3px;
-}
-
-.question .title {
-  font-size: 22px;
-  margin-top: 40px;
-  padding-bottom: 24px;
-}
-
-#github-file img {
-  width: 24px;
-}
-
-div.message .delete-msg {
-  position: absolute;
-  right: 4px;
-  font-size: 10px;
-  width: 12px;
-  text-align: center;
-}
-
-div.message .delete-msg:hover {
-  background-color: #b10000;
-  border-radius: 50%;
-}
-
-button.border {
-  border: 2px solid;
-}
-
-#HTMLview {
-  border: none;
-  width: 100%;
-  height: calc(100vh - 50px);
-}
-
-#split-bar {
-  flex: 0 0 auto;
-  width: 18px;
-  background: url(https://raw.githubusercontent.com/RickStrahl/jquery-resizable/master/assets/vsizegrip.png) center center no-repeat #535353;
-  min-height: 200px;
-  cursor: col-resize;
-}
-
-#CPoints {
+#activity button {
+  padding: 8px;
+  background: #009826;
   color: white;
-  position: absolute;
-  right: 32px;
-  top: 56px;
-  cursor: help;
+  font-size: 20px;
+  font-weight: bold;
+  border: 0.6px solid #757575;
+  margin: 8px;
 }
