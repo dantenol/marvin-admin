@@ -93,7 +93,7 @@
     alert('Aguarde até a conclusão, pode demorar um pouco!');
     $.ajax({
       type: "post",
-      url: "https://localhost/api/activities/" + activity.id + "/upload?access_token=" + localStorage.access_token,
+      url: "https://api.projetomarvin.com/api/activities/" + activity.id + "/upload?access_token=" + localStorage.access_token,
       data: formData,
       enctype: 'multipart/form-data',
       crossDomain: true,
@@ -159,7 +159,7 @@
 
   $(document).ready(function() {
     $.ajax({
-      url: 'https://localhost/api/courses/?filter=%7B%22include%22%3A%20%5B%22students%22%2C%20%22activities%22%5D%7D&access_token=' + localStorage.access_token,
+      url: 'https://api.projetomarvin.com/api/courses/?filter=%7B%22include%22%3A%20%5B%22students%22%2C%20%22activities%22%5D%7D&access_token=' + localStorage.access_token,
       crossDomain: true,
       success: function(res, textStatus, jqXHR) {
         courses = res;
