@@ -7,6 +7,7 @@
   <meta charset="utf-8">
   <link rel="shortcut icon" href="assets/favicon.ico">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="./helper.js" charset="utf-8"></script>
   <title>Marvin</title>
 </head>
 
@@ -30,14 +31,21 @@
       const pwd = $('input[name=password]').val();
       $.ajax({
         type: 'POST',
-        url: 'https://api.projetomarvin.com/api/students/login',
+        url: url + 'students/login',
         crossDomain: true,
         data: {user: usr, password: pwd},
         success: function(responseData, textStatus, jqXHR) {
-          console.log(responseData);
-          localStorage.setItem('access_token', responseData.id);
-          localStorage.setItem('userId', responseData.userId);
-          window.location.href = '/home.html';
+          fetch(url + 'courses?access_token=' + responseData.id)
+          .then(e => {
+            console.log(e);
+            if (e.status === 401)
+              window.location.href = 'https://app.projetomarvin.com';
+            else {
+              localStorage.setItem('access_token', responseData.id);
+              localStorage.setItem('userId', responseData.userId);
+              window.location.href = '/home.html';
+            }
+          })
         },
         error: function (responseData, textStatus, errorThrown) {
           console.log(responseData.statusCode());

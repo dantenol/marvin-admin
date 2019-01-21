@@ -8,11 +8,15 @@
   <link rel="shortcut icon" href="assets/favicon.ico">
   <meta http-equiv="refresh" content="60">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="./helper.js" charset="utf-8"></script>
   <title>Marvin</title>
 </head>
 
 <body>
   <main>
+    <div class="logout">
+      <button type="button" class="wine" onclick="logout()">Sair</button>
+    </div>
     <a href="#">
     <h1>Gerenciar cursos</h1>
   </a>
@@ -24,7 +28,11 @@
   </a>
   </main>
   <script type="text/javascript">
-
+  function logout() {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('access_token');
+    location.href = '/index.html'
+  }
   </script>
 </body>
 

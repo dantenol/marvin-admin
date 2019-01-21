@@ -7,11 +7,15 @@
   <link rel="stylesheet" href="/css/index.css">
   <link rel="shortcut icon" href="assets/favicon.ico">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="./helper.js" charset="utf-8"></script>
   <title>Atividades</title>
 </head>
 
 <body>
   <main class="vertical">
+    <a class="white_back" onclick="window.history.back();">
+      &#11013;
+    </a>
     <div id="selection">
       <h3>Selecionar curso:</h1>
       <select id="courses">
@@ -48,8 +52,9 @@
       <h2>Exercícios</h2>
       <div id="exercises">
       </div>
-      <button type="button" onclick="send()">SALVAR MUDANÇAS</button>
+      <button class="finish" onclick="send()">SALVAR MUDANÇAS</button>
     </div>
+    <div class="codeStatus"/>
   </main>
   <script type="text/javascript">
   let courses;
@@ -78,22 +83,40 @@
   }
 
   function parse(str) {
-    if (Array.isArray(eval(str)) || typeof eval(str) !== 'object')
+    let obj;
+    $('.codeStatus').css('background', '#0b0');
+    try{
+      return JSON.parse(str)
+    } catch {
+      $('.codeStatus').css('background', '#b00');
+    }
+    try {
       return eval(str);
-    else
-      return JSON.parse(str);
+    } catch {
+      $('.codeStatus').css('background', '#b00');
+    }
+  }
+
+  function delEx(i) {
+    changes.exercises.splice(i, 1);
+    $(`#ex${i}`).remove();
+  }
+
+  function delTest(ex, testN) {
+    changes.exercises[ex].tests.splice(testN, 1);
+
   }
 
   function changefile() {
     const formData = new FormData();
-    var file = document.getElementById('PDFupload').files[0];
+    const file = document.getElementById('PDFupload').files[0];
     console.log(file);
     formData.append('file', file)
     if (!activity) return alert('Você deve selecionar uma atividade primeiro!');
     alert('Aguarde até a conclusão, pode demorar um pouco!');
     $.ajax({
       type: "post",
-      url: "https://api.projetomarvin.com/api/activities/" + activity.id + "/upload?access_token=" + localStorage.access_token,
+      url:  url + "activities/" + activity.id + "/upload?access_token=" + localStorage.access_token,
       data: formData,
       enctype: 'multipart/form-data',
       crossDomain: true,
@@ -112,7 +135,7 @@
 
   $('select#activities').on('change', function() {
     activity = course.activities[this.value];
-    changes = activity;
+    changes = $.extend(true,{},course.activities[this.value]);
     $("#link").attr("href", activity.PDFurl);
     $("#minGrade").val(activity.minGrade);
     $("#name").val(activity.name);
@@ -124,42 +147,43 @@
         <div class="row">
           <p>Nome do arquivo: </p>
           <input type="text" value="${e.file}" size="30" id="nameEx${i}">
+          <button class="remove" onclick="delEx(${i})">&times;</button>
         </div>`
       );
       e.tests.map((t, idx) => {
         $(`#ex${i}`).append(`
-          <div>
+          <div class="row test${idx}">
             <h3>Teste ${idx + 1}:</h3>
+            <button class="remove" onclick="delTest(${i}, ${idx})">&times;</button>
+          </div>
         `);
         for (prop in t) {
           if (t.hasOwnProperty(prop)) {
-            $(`#ex${i}`).append(`<div class="row">
+            $(`#ex${i}`).append(`<div class="row test${idx}">
               <p>${prop}: </p>
               <input type="text" id="ex${i}test${idx + 1}${prop}" value='${str(t[prop])}'   />
             </div>`);
           }
         }
       })
-      $(`#ex${i}`).append('</div>');
     });
   });
 
   $(document.body).on('keyup', "input[type='text']", function() {
-         console.log($(this).attr("id"), $(this).val());
-         const pars = $(this).attr("id").match(/^ex(\d+).+(\d+)(.+)$/);
-         const fileName = $(this).attr("id").match(/Ex(\d+)$/);
-         if (pars) {
-           changes.exercises[pars[1]].tests[pars[2] - 1][pars[3]] = parse($(this).val());
-         } else if (fileName) {
-           changes.exercises[fileName[1]].file = $(this).val();
-         } else {
-           changes[$(this).attr("id")]= $(this).val()
-         }
-     });
+    console.log($(this).attr("id"), $(this).val());
+     const pars = $(this).attr("id").match(/^ex(\d+).+(\d+)(.+)$/);
+     const fileName = $(this).attr("id").match(/Ex(\d+)$/);
+     if (pars)
+       changes.exercises[pars[1]].tests[pars[2] - 1][pars[3]] = parse($(this).val());
+     else if (fileName)
+       changes.exercises[fileName[1]].file = $(this).val();
+     else
+       changes[$(this).attr("id")]= $(this).val()
+   });
 
   $(document).ready(function() {
     $.ajax({
-      url: 'https://api.projetomarvin.com/api/courses/?filter=%7B%22include%22%3A%20%5B%22students%22%2C%20%22activities%22%5D%7D&access_token=' + localStorage.access_token,
+      url: url + 'courses/?filter=%7B%22include%22%3A%20%5B%22students%22%2C%20%22activities%22%5D%7D&access_token=' + localStorage.access_token,
       crossDomain: true,
       success: function(res, textStatus, jqXHR) {
         courses = res;
