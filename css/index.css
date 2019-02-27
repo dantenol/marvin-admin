@@ -99,7 +99,8 @@ main.fullwidth {
   font-size: 24px;
 }
 
-select, #activity input[type="text"] {
+select,
+#activity input[type="text"] {
   background: white;
   padding: 2px;
   margin: 16px;
@@ -107,7 +108,8 @@ select, #activity input[type="text"] {
   border: 1px solid black;
 }
 
-#selection, #activity {
+#selection,
+#activity {
   text-align: center;
 }
 
@@ -127,7 +129,7 @@ select, #activity input[type="text"] {
   justify-content: center;
 }
 
-#exercises .test:nth-child(odd){
+#exercises .test:nth-child(odd) {
   background-color: #bdbdbd;
 }
 
@@ -171,4 +173,52 @@ a.white_back {
   width: 48px;
   height: 48px;
   background: #0b0;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 98vw;
+}
+
+.row:nth-child(odd) {
+  background: #cccccc;
+}
+
+.row:nth-child(even) {
+  background: #acacac;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+  align-items: center;
+}
+
+.row * {
+  width: calc(80vw / 6);
+  padding: 8px;
+  font-size: 18px;
+}
+
+.row input {
+  margin-right: 32px;
+  margin: 8px;
+  border-radius: 4px;
+}
+
+.row input:focus {
+  border: 1px solid #323232;
+  margin-right: 32px;
+  margin: 8px;
+  border-radius: 4px;
+  background: #f5f5f5;
+}
+
+.panic {
+  width: 100%;
+  height: 18px;
+  background: #870000;
 }

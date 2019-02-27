@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/css/master.css">
+  <link rel="stylesheet" href="/css/index.css">
+  <link rel="shortcut icon" href="assets/favicon.ico">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="./helper.js" charset="utf-8"></script>
+  <title>Alunos</title>
+</head>
+
+<body>
+  <main class="vertical">
+    <a class="white_back" onclick="window.history.back();">
+      &#11013;
+    </a>
+    <div id="selection">
+      <h3>Selecionar curso:</h1>
+      <select id="courses">
+        <option disabled selected value></option>
+      </select>
+    </div>
+    <div id="students">
+      <div class="table">
+        <div class="row">
+          <span>Usuáro</span>
+          <span>XP</span>
+          <span>Fase</span>
+          <span>Pontos</span>
+          <span>PÂNICO</span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script type="text/javascript">
+  let courses;
+  let course;
+  let students;
+  let changes;
+
+  $('select#courses').on('change', function() {
+    course = courses[this.value];
+    $('#students .table .row').slice(1).remove();
+    courses[this.value].students.map((e, i) => {
+      $('#students .table').append(
+        `<div class="row">
+          <div>${e.username}</div>
+          <input type="text" value="${Math.round(e.XPPoints)}" size="10" id="XP${e.id}">
+          <input type="text" value="${e.activityNumber}" size="10" id="fase${e.id}">
+          <input type="text" value="${e.correctionPoints}" size="10" id="CP${e.id}">
+          <a href="#" onclick="panic('${e.id}')">
+            <div class="${e.panic && "panic"}" id="panic${e.id}"></div>
+          </a>
+          <button onclick="save()">Salvar</button>
+        </div>`
+      );
+    })
+  });
+
+  function panic(id) {
+    console.log(id);
+      $.ajax({
+        type: 'patch',
+        url: 'https://localhost:443/api/students/' + id + '?access_token=' + localStorage.access_token,
+        crossDomain: true,
+        data: {
+          panic: null,
+        },
+        success: function(responseData, textStatus, jqXHR) {
+          $(`#panic${id}`).removeClass('panic');
+          alert('Pânico removido!');
+        },
+        error: function(responseData, textStatus, errorThrown) {
+          alert('Algo deu errado' + responseData)
+        }
+      })
+  }
+
+  $(document).ready(function() {
+    $.ajax({
+      url: url + 'courses/?filter={"include":"students"}&access_token=' + localStorage.access_token,
+      crossDomain: true,
+      success: function(res, textStatus, jqXHR) {
+        courses = res;
+        res.map((e, i) => {
+          $('select#courses').append('<option value='+i+'>'+e.name+'</option>');
+        });
+      },
+      error: function(responseData, textStatus, errorThrown) {
+        console.log(responseData);;
+      }
+    })
+  })
+
+  </script>
+</body>
+
+</html>
