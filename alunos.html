@@ -95,7 +95,7 @@
     }
     $.ajax({
         type: 'post',
-        url: 'https://localhost:443/api/courses/' + course.id +'/students/?access_token=' + localStorage.access_token,
+        url: url + 'courses/' + course.id +'/students/?access_token=' + localStorage.access_token,
         crossDomain: true,
         data: {email: email, password: 'projetomarvin'},
         success: function(responseData, textStatus, jqXHR) {
@@ -114,7 +114,7 @@
   function patch(id, data) {
       $.ajax({
         type: 'patch',
-        url: 'https://localhost:443/api/students/' + id + '?access_token=' + localStorage.access_token,
+        url: url + 'students/' + id + '?access_token=' + localStorage.access_token,
         crossDomain: true,
         data: data,
         success: function(responseData, textStatus, jqXHR) {
