@@ -9,11 +9,12 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="./helper.js" charset="utf-8"></script>
   <title>Alunos</title>
+  <meta http-equiv="refresh" content="30">
 </head>
 
 <body>
   <main class="vertical">
-    <a class="white_back" onclick="window.history.back();">
+    <a class="white_back" onclick="location.href='/home.html'">
       &#11013;
     </a>
     <div id="selection">
@@ -22,6 +23,7 @@
         <option disabled selected value></option>
       </select>
     </div>
+    <h4 id="totalCP"></h4>
     <div id="students">
       <div class="table">
         <div class="row">
@@ -34,52 +36,99 @@
         </div>
       </div>
     </div>
+    <button id="newStudent" onclick="newStudent()">Novo aluno</button>
   </main>
   <script type="text/javascript">
   let courses;
   let course;
-  let students;
-  let changes;
 
   $('select#courses').on('change', function() {
-    course = courses[this.value];
+    loadCourse(this.value)
+  });
+
+  function loadCourse(i) {
+    course = courses[i];
+    const params = new URLSearchParams(location.search)
+    params.set('course', i)
+    window.history.pushState(0, 0, '?' + params.toString());
     $('#students .table .row').slice(1).remove();
-    courses[this.value].students.map((e, i) => {
+    let CPoints = 0;
+    courses[i].students.map((e, i) => {
+      CPoints += e.correctionPoints;
       $('#students .table').append(
         `<div class="row">
           <div>${e.username}</div>
           <input type="text" value="${Math.round(e.XPPoints)}" size="10" id="XP${e.id}">
-          <input type="text" value="${e.activityNumber}" size="10" id="fase${e.id}">
+          <div>${e.activityNumber}</div>
           <input type="text" value="${e.correctionPoints}" size="10" id="CP${e.id}">
           <a href="#" onclick="panic('${e.id}')">
             <div class="${e.panic && "panic"}" id="panic${e.id}"></div>
           </a>
-          <button onclick="save()">Salvar</button>
+          <button onclick="save('${e.id}')">Salvar</button>
         </div>`
       );
     })
-  });
+    const avg = CPoints/course.students.length;
+    $('#totalCP').empty();
+    $('#totalCP').append('Correção: ' + CPoints + ', média: ' + Math.round(avg * 100) / 100);
+  }
+
+  function save(id) {
+    const data = {}
+    const vals = $(`[id$="${id}"]`).each(function () {
+       data[$(this).prop('id')[0]] = $(this).val();
+    })
+    delete data.p;
+    data.XPPoints = data.X;
+    delete data.X;
+    data.correctionPoints = data.C;
+    delete data.C;
+    console.log(data);
+    patch(id, data)
+  }
+
+  function newStudent() {
+    const email = prompt("Digite o email a ser cadastrado");
+    const email2 = prompt("Digite o email novamente");
+    if (!email || email !== email2) {
+      return alert("Informação inválida")
+    }
+    $.ajax({
+        type: 'post',
+        url: 'https://localhost:443/api/courses/' + course.id +'/students/?access_token=' + localStorage.access_token,
+        crossDomain: true,
+        data: {email: email, password: 'projetomarvin'},
+        success: function(responseData, textStatus, jqXHR) {
+          alert('Usuário criado com sucesso!');
+        },
+        error: function(responseData, textStatus, errorThrown) {
+          alert('Algo deu errado' + JSON.stringify(responseData))
+        }
+      })
+  }
 
   function panic(id) {
-    console.log(id);
+    patch(id, {panic: null});
+  }
+
+  function patch(id, data) {
       $.ajax({
         type: 'patch',
         url: 'https://localhost:443/api/students/' + id + '?access_token=' + localStorage.access_token,
         crossDomain: true,
-        data: {
-          panic: null,
-        },
+        data: data,
         success: function(responseData, textStatus, jqXHR) {
           $(`#panic${id}`).removeClass('panic');
-          alert('Pânico removido!');
+          alert('Alteração realizada com sucesso!');
         },
         error: function(responseData, textStatus, errorThrown) {
-          alert('Algo deu errado' + responseData)
+          alert('Algo deu errado' + JSON.stringify(responseData))
         }
       })
   }
 
   $(document).ready(function() {
+    const curr = location.search.split("=")[1];
     $.ajax({
       url: url + 'courses/?filter={"include":"students"}&access_token=' + localStorage.access_token,
       crossDomain: true,
@@ -88,6 +137,10 @@
         res.map((e, i) => {
           $('select#courses').append('<option value='+i+'>'+e.name+'</option>');
         });
+        if (curr) {
+          $('select#courses').val(curr);
+          loadCourse(curr);
+        }
       },
       error: function(responseData, textStatus, errorThrown) {
         console.log(responseData);;

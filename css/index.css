@@ -209,7 +209,9 @@ a.white_back {
   border-radius: 4px;
 }
 
-.row input:focus {
+.row input:focus,
+.row button:focus,
+.row button:hover {
   border: 1px solid #323232;
   margin-right: 32px;
   margin: 8px;
@@ -221,4 +223,27 @@ a.white_back {
   width: 100%;
   height: 18px;
   background: #870000;
+}
+
+#totalCP {
+  position: absolute;
+  top: 0;
+  right: 32px;
+}
+
+#newStudent {
+  width: 80vh;
+  margin-top: 20px;
+  padding: 16px;
+  background: rgb(7, 140, 0);
+  color: white;
+  font-size: 32px;
+  text-transform: uppercase;
+  border-radius: 8px;
+  box-shadow: 1px 3px 6px rgb(99, 99, 99);
+}
+
+#newStudent:active {
+  box-shadow: none;
+  transition: .4s;
 }
