@@ -17,6 +17,15 @@
     <a class="white_back" onclick="location.href='/home.html'">
       &#11013;
     </a>
+    <div id="addDialog" style="display:none">
+      <div class="dialog">
+        <button onclick="closeDialog()" id="closeButton">&times;</button>
+        <h2>email dos alunos (um por linha)</h2>
+        <textarea rows="5" name="emails" autocomplete="off"></textarea>
+        <br>
+        <button onclick="createStudents()" class="green">Adicionar</button>
+      </div>
+    </div>
     <div id="selection">
       <h3>Selecionar curso:</h3>
       <select id="courses">
@@ -91,23 +100,38 @@
   }
 
   function newStudent() {
-    const email = prompt("Digite o email a ser cadastrado");
-    const email2 = prompt("Digite o email novamente");
-    if (!email || email !== email2) {
-      return alert("Informação inválida")
-    }
-    $.ajax({
-        type: 'post',
-        url: url + 'courses/' + course.id +'/students/?access_token=' + localStorage.access_token,
-        crossDomain: true,
-        data: {email: email, password: 'projetomarvin'},
-        success: function(responseData, textStatus, jqXHR) {
-          alert('Usuário criado com sucesso!');
-        },
-        error: function(responseData, textStatus, errorThrown) {
-          alert('Algo deu errado' + JSON.stringify(responseData))
-        }
-      })
+    $('#addDialog').show();
+  }
+
+  function closeDialog() {
+    $("#addDialog").hide();
+    $('textarea[name=emails]').val("");
+  }
+
+  function createStudents() {
+    let emails = $('textarea[name=emails]').val();
+    emails = emails.replace(/ /g, "");
+    emails = emails.split("\n")
+    let count = 0;
+    emails.map(e => {
+      var re = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+      if (re.test(e)) {
+        $.ajax({
+          type: 'post',
+          url: url + 'courses/' + course.id +'/students/?access_token=' + localStorage.access_token,
+          crossDomain: true,
+          data: {email: e, password: 'projetomarvin'},
+          success: function(responseData, textStatus, jqXHR) {
+            alert('Usuário ' + e + ' criado com sucesso!');
+          },
+          error: function(responseData, textStatus, errorThrown) {
+            alert('Algo deu errado' + JSON.stringify(responseData))
+          }
+        })
+      } else {
+        alert('email ' + e + ' não é válido!');
+      }
+    })
   }
 
   function panic(id) {
