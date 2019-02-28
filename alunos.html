@@ -36,7 +36,9 @@
         </div>
       </div>
     </div>
-    <button id="newStudent" onclick="newStudent()">Novo aluno</button>
+    <button id="newStudent" onclick="newStudent()" style="display: none;">
+      Novo aluno
+    </button>
   </main>
   <script type="text/javascript">
   let courses;
@@ -69,6 +71,7 @@
       );
     })
     const avg = CPoints/course.students.length;
+    $('#newStudent').show();
     $('#totalCP').empty();
     $('#totalCP').append('Correção: ' + CPoints + ', média: ' + Math.round(avg * 100) / 100);
   }
