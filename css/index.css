@@ -225,6 +225,12 @@ a.white_back {
   background: #870000;
 }
 
+.correction {
+  width: 100%;
+  height: 18px;
+  background: #146600;
+}
+
 #totalCP {
   position: absolute;
   top: 0;

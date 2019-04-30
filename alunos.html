@@ -40,6 +40,7 @@
           <span>XP</span>
           <span>Fase</span>
           <span>Pontos</span>
+          <span>Corrigindo</span>
           <span>PÂNICO</span>
           <span></span>
         </div>
@@ -72,6 +73,9 @@
           <input type="text" value="${Math.round(e.XPPoints)}" size="10" id="XP${e.id}">
           <div>${e.activityNumber}</div>
           <input type="text" value="${e.correctionPoints}" size="10" id="CP${e.id}">
+          <a href="#" onclick="correction('${e.id}')">
+          <div class="${e.availableUntil === "correction" && "correction"}" id="panic${e.id}"></div>
+          </a>
           <a href="#" onclick="panic('${e.id}')">
             <div class="${e.panic && "panic"}" id="panic${e.id}"></div>
           </a>
@@ -136,6 +140,10 @@
 
   function panic(id) {
     patch(id, {panic: null});
+  }
+
+  function correction(id) {
+    patch(id, {availableUntil: "available"});
   }
 
   function patch(id, data) {
