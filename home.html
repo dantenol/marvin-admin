@@ -33,6 +33,17 @@
     localStorage.removeItem('access_token');
     location.href = '/index.html'
   }
+
+  $(document).ready(function(){
+  $.ajax({ url: url + 'courses?access_token=' + localStorage.access_token,
+    context: document.body,
+    error: function(){
+       alert("Login expirado");
+       localStorage.removeItem('access_token'),
+       location.href='/index.html'
+    }
+  });
+  });
   </script>
 </body>
 

@@ -9,7 +9,6 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="./helper.js" charset="utf-8"></script>
   <title>Alunos</title>
-  <meta http-equiv="refresh" content="30">
 </head>
 
 <body>
@@ -37,7 +36,7 @@
       <div class="table">
         <div class="row">
           <span>Usuáro</span>
-          <span>XP</span>
+          <span>Coins</span>
           <span>Fase</span>
           <span>Pontos</span>
           <span>Corrigindo</span>
@@ -53,6 +52,7 @@
   <script type="text/javascript">
   let courses;
   let course;
+  let courseNumber;
 
   $('select#courses').on('change', function() {
     loadCourse(this.value)
@@ -60,9 +60,7 @@
 
   function loadCourse(i) {
     course = courses[i];
-    const params = new URLSearchParams(location.search)
-    params.set('course', i)
-    window.history.pushState(0, 0, '?' + params.toString());
+    courseNumber = i
     $('#students .table .row').slice(1).remove();
     let CPoints = 0;
     courses[i].students.map((e, i) => {
@@ -70,7 +68,7 @@
       $('#students .table').append(
         `<div class="row">
           <div>${e.username}</div>
-          <input type="text" value="${Math.round(e.XPPoints)}" size="10" id="XP${e.id}">
+          <input type="text" value="${e.coins}" size="10" id="coins${e.id}">
           <div>${e.activityNumber}</div>
           <input type="text" value="${e.correctionPoints}" size="10" id="CP${e.id}">
           <a href="#" onclick="correction('${e.id}')">
@@ -95,7 +93,7 @@
        data[$(this).prop('id')[0]] = $(this).val();
     })
     delete data.p;
-    data.XPPoints = data.X;
+    data.coins = data.X;
     delete data.X;
     data.correctionPoints = data.C;
     delete data.C;
@@ -162,8 +160,7 @@
       })
   }
 
-  $(document).ready(function() {
-    const curr = location.search.split("=")[1];
+  function update(curr = courseNumber) {
     $.ajax({
       url: url + 'courses/?filter={"include":"students"}&access_token=' + localStorage.access_token,
       crossDomain: true,
@@ -181,6 +178,11 @@
         console.log(responseData);;
       }
     })
+  }
+
+  $(document).ready(function() {
+    update();
+    setInterval(update, 30000)
   })
 
   </script>
