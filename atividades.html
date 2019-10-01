@@ -1,203 +1,157 @@
 <!DOCTYPE html>
 <html lang="pt" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/css/master.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./helper.js" charset="utf-8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/simple-image@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script>
+    <title>Atividades</title>
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <link rel="stylesheet" href="/css/master.css">
-  <link rel="stylesheet" href="/css/index.css">
-  <link rel="shortcut icon" href="assets/favicon.ico">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="./helper.js" charset="utf-8"></script>
-  <title>Atividades</title>
-</head>
-
-<body>
-  <main class="vertical">
-    <a class="white_back" onclick="window.history.back();">
-      &#11013;
-    </a>
-    <div id="selection">
-      <h3>Selecionar curso:</h1>
-      <select id="courses">
-        <option disabled selected value></option>
-      </select>
-      <h3>Selecionar atividade:</h1>
-      <select id="activities">
-        <option disabled selected value></option>
-      </select>
-    </div>
-    <div id="activity">
-      <h2>ATIVIDADE</h2>
-      <div class="row">
-        <p>Título: </p>
-        <input type="text" id="name">
+  <body>
+    <main class="vertical">
+      <a class="white_back" onclick="window.history.back();">
+        &#11013;
+      </a>
+      <div id="selection">
+        <h3>Selecionar curso:</h3>
+        <select id="courses">
+          <option disabled selected value></option>
+        </select>
+        <h3>Selecionar fase:</h3>
+        <select id="levels">
+          <option disabled selected value></option>
+        </select>
       </div>
-      <div class="row">
-        <p>Descrição: </p>
-        <input type="text" id="description" size="60">
-      </div>
-      <div class="row">
-        <p>Nota mínima: </p>
-        <input type="text" id="minGrade" size="10">
-      </div>
-      <div class="row">
-        <p>PDF: </p>
-        &nbsp;
-        <a href="" target="_blank" id="link">link</a>
-        &nbsp;
-        &nbsp;
-        &nbsp;
-        <input type="file" id="PDFupload" onchange="changefile()">
-      </div>
-      <h2>Exercícios</h2>
-      <div id="exercises">
-      </div>
-      <button class="finish" onclick="send()">SALVAR MUDANÇAS</button>
-    </div>
-    <div class="codeStatus"/>
-  </main>
-  <script type="text/javascript">
-  let courses;
-  let course;
-  let activity;
-  let changes;
-
-  $('select#courses').on('change', function() {
-    course = courses[this.value];
-    courses[this.value].activities.map((e, i) => {
-      $('select#activities').append(
-        '<option value=' + i + '>' + i + " - " + e.name + '</option>'
-      );
-    })
-  });
-
-  function str(data) {
-    let a = JSON.stringify(data);
-    a = a.replace(/\'/g, "\"");
-    if (typeof data === "object")
-      return a;
-    else if (typeof data === "string")
-      return `"` + data + `"`;
-    else
-      return data;
-  }
-
-  function parse(str) {
-    let obj;
-    $('.codeStatus').css('background', '#0b0');
-    try{
-      return JSON.parse(str)
-    } catch {
-      $('.codeStatus').css('background', '#b00');
-    }
-    try {
-      return eval(str);
-    } catch {
-      $('.codeStatus').css('background', '#b00');
-    }
-  }
-
-  function delEx(i) {
-    changes.exercises.splice(i, 1);
-    $(`#ex${i}`).remove();
-  }
-
-  function delTest(ex, testN) {
-    changes.exercises[ex].tests.splice(testN, 1);
-
-  }
-
-  function changefile() {
-    const formData = new FormData();
-    const file = document.getElementById('PDFupload').files[0];
-    console.log(file);
-    formData.append('file', file)
-    if (!activity) return alert('Você deve selecionar uma atividade primeiro!');
-    alert('Aguarde até a conclusão, pode demorar um pouco!');
-    $.ajax({
-      type: "post",
-      url:  url + "activities/" + activity.id + "/upload?access_token=" + localStorage.access_token,
-      data: formData,
-      enctype: 'multipart/form-data',
-      crossDomain: true,
-      cache: false,
-      contentType: false,
-      processData: false,
-      success: function (res) {
-        console.log(res);
-        alert('Upload concuído!')
-      },
-      error: function (res) {
-        console.log(res);
-      }
-     })
-  }
-
-  $('select#activities').on('change', function() {
-    activity = course.activities[this.value];
-    changes = $.extend(true,{},course.activities[this.value]);
-    $("#link").attr("href", activity.PDFurl);
-    $("#minGrade").val(activity.minGrade);
-    $("#name").val(activity.name);
-    $("#description").val(activity.description);
-    $("#exercises").empty();
-    activity.exercises.map((e, i) => {
-      $("#exercises").append(
-        `<div id="ex${i}" class="test">
+      <div id="level">
+        <h2>ATIVIDADE</h2>
         <div class="row">
-          <p>Nome do arquivo: </p>
-          <input type="text" value="${e.file}" size="30" id="nameEx${i}">
-          <button class="remove" onclick="delEx(${i})">&times;</button>
-        </div>`
-      );
-      e.tests.map((t, idx) => {
-        $(`#ex${i}`).append(`
-          <div class="row test${idx}">
-            <h3>Teste ${idx + 1}:</h3>
-            <button class="remove" onclick="delTest(${i}, ${idx})">&times;</button>
+          <p>Título:</p>
+          <input type="text" id="name" />
+        </div>
+        <div class="row">
+          <p>Descrição:</p>
+          <input type="text" id="description" size="60" />
+        </div>
+        <div class="row">
+          <p>Nota mínima (%):</p>
+          <input type="tel" id="minGrade" maxlength="4" />
+        </div>
+        <button class="finish" onclick="send()">SALVAR MUDANÇAS DA FASE</button>
+        <h2>Exercícios</h2>
+        <div id="exercises">
+          <button class="exercise" onclick="addExercise()">+</button>
+        </div>
+        <div id="exerciseDetails" hidden>
+          <div class="row">
+            <p>Nome:</p>
+            <input type="text" id="chapterName" />
           </div>
-        `);
-        for (prop in t) {
-          if (t.hasOwnProperty(prop)) {
-            $(`#ex${i}`).append(`<div class="row test${idx}">
-              <p>${prop}: </p>
-              <input type="text" id="ex${i}test${idx + 1}${prop}" value='${str(t[prop])}'   />
-            </div>`);
-          }
-        }
-      })
-    });
-  });
+          <div class="row">
+            <p>Caminho de submissão:</p>
+            <input type="text" id="path" size="30" />
+          </div>
+          <h1>Texto do nível</h1>
+          <div id="editorjs"></div>
+          <h1>Testes</h1>
+        </div>
+      </div>
+    </main>
+    <script type="text/javascript">
+      let courses;
+      let course;
+      let level;
+      let exercise;
 
-  $(document.body).on('keyup', "input[type='text']", function() {
-    console.log($(this).attr("id"), $(this).val());
-     const pars = $(this).attr("id").match(/^ex(\d+).+(\d+)(.+)$/);
-     const fileName = $(this).attr("id").match(/Ex(\d+)$/);
-     if (pars)
-       changes.exercises[pars[1]].tests[pars[2] - 1][pars[3]] = parse($(this).val());
-     else if (fileName)
-       changes.exercises[fileName[1]].file = $(this).val();
-     else
-       changes[$(this).attr("id")]= $(this).val()
-   });
+      const editor = new EditorJS({
+        tools: {
+          image: {
+            class: SimpleImage,
+            inlineToolbar: ['link'],
+          },
+          list: {
+            class: List,
+            inlineToolbar: true,
+            shortcut: 'CMD+SHIFT+L',
+          },
+          code: {
+            class: CodeTool,
+            shortcut: 'CMD+SHIFT+C',
+          },
+        },
+      });
 
-  $(document).ready(function() {
-    $.ajax({
-      url: url + 'courses/?filter=%7B%22include%22%3A%20%5B%22students%22%2C%20%22activities%22%5D%7D&access_token=' + localStorage.access_token,
-      crossDomain: true,
-      success: function(res, textStatus, jqXHR) {
-        courses = res;
-        res.map((e, i) => {
-          $('select#courses').append('<option value='+i+'>'+e.name+'</option>');
+      $('select#courses').on('change', function() {
+        course = courses[this.value];
+        courses[this.value].activities.forEach((e, i) => {
+          $('select#levels').append(
+            '<option value=' + i + '>' + i + ' - ' + e.levelName + '</option>',
+          );
         });
-      },
-      error: function(responseData, textStatus, errorThrown) {
-        console.log(responseData);;
+      });
+
+      $('select#levels').on('change', function() {
+        level = course.activities[this.value];
+        $('#minGrade').val(level.minGrade);
+        $('#name').val(level.levelName);
+        $('#description').val(level.levelDescription);
+        $('#exercises').empty();
+        $('#exercises').append(
+          '<button class="exercise" onClick="addExercise">+</button>',
+        );
+        level.exercises.forEach((e, i) => {
+          $('#exercises').prepend(
+            `<button class="exercise" id="ex${i}Button" onClick=selectExercise(${i})>${i}</button>`,
+          );
+        });
+      });
+
+      function addExercise() {
+        if (!level) {
+          alert('Selecione uma fase primeiro!');
+        }
       }
-    })
-  })
+      function selectExercise(n) {
+        if (exercise) {
+          $(`#ex${exercise}Button`).removeClass('selected');
+        }
+        exercise = n;
+        $(`#ex${n}Button`).addClass('selected');
+        editor.blocks.clear();
+        $('#exerciseDetails').show();
+        let selectedExercise = level.exercises[n];
+        $('#chapterName').val(selectedExercise.name);
+        $('#path').val(selectedExercise.path);
+      }
 
-  </script>
-</body>
-
+      $(document).ready(function() {
+        $.ajax({
+          url:
+            url +
+            'courses/?filter={"include":["students",{"activities": "exercises"}]}&access_token=' +
+            localStorage.access_token,
+          crossDomain: true,
+          success: function(res, textStatus, jqXHR) {
+            courses = res;
+            res.map((e, i) => {
+              $('select#courses').append(
+                '<option value=' + i + '>' + e.name + '</option>',
+              );
+            });
+          },
+          error: function(responseData, textStatus, errorThrown) {
+            console.log(responseData);
+          },
+        });
+      });
+    </script>
+  </body>
 </html>
