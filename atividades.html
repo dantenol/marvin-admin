@@ -31,6 +31,12 @@
         <select id="levels">
           <option disabled selected value></option>
         </select>
+        <button hidden id="newLevel" class="green" onclick="createLevel()">
+          Nova fase
+        </button>
+        <button hidden id="deleteLevel" class="orange" onclick="deleteLevel()">
+          Excluir
+        </button>
       </div>
       <div id="level">
         <h2>FASE</h2>
@@ -150,10 +156,13 @@
             '<option value=' + i + '>' + i + ' - ' + e.levelName + '</option>',
           );
         });
+        $('#newLevel').show();
       });
 
       $('select#levels').on('change', function() {
         level = course.activities[this.value];
+        $('#newLevel').hide();
+        $('#deleteLevel').show();
         $('#minGrade').val(level.minGrade * 100);
         $('#name').val(level.levelName);
         $('#description').val(level.levelDescription);
@@ -181,7 +190,7 @@
         if (exerciseNumber !== false) {
           $(`#ex${exerciseNumber}Button`).removeClass('selected');
         }
-        exercise = level.exercises.find(e => e.number === n);
+        exercise = level.exercises.find((e) => e.number === n);
         exerciseNumber = n;
         tests = [];
         $(`#ex${n}Button`).addClass('selected');
@@ -197,7 +206,7 @@
             path: exercise.path,
             instructions: exercise.instructions,
             corrections: exercise.corrections,
-            number: exercise.number
+            number: exercise.number,
           };
         } else {
           exerciseData = {
@@ -540,6 +549,43 @@
         }
       }
 
+      async function createLevel() {
+        await $.ajax({
+          url: `${url}pdfs?access_token=${localStorage.access_token}`,
+          crossDomain: true,
+          type: 'POST',
+          dataType: 'json',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            levelNumber: course.activities.length + 1,
+            levelName: 'Nova fase',
+            levelDescription: 'Nova descrição',
+            minGrade: 1,
+            courseId: course.id
+          }),
+        });
+
+        window.location.reload();
+      }
+
+      async function deleteLevel() {
+        alert("Você realmente quer excluir essa fase?");
+        const res = await prompt("Para confirmar, digite o nome/título dessa fase");
+        if (res !== level.levelName) {
+          console.log(res, level.levelName);
+          alert('Cancelado')
+          return;
+        }
+
+        await $.ajax({
+          url: `${url}pdfs/${level.id}?access_token=${localStorage.access_token}`,
+          crossDomain: true,
+          type: 'DELETE',
+        });
+
+        alert('fase excluída com sucesso!');
+        window.location.reload();
+      }
       // page load
       $(document).ready(function() {
         $.ajax({
