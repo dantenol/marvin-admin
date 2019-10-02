@@ -308,8 +308,12 @@
 
       function processExample_editorjToObj(string) {
         const obj = { title: '', code: '' };
-        obj.title = string.match(/^(.+?)\n\n\n/g)[0].replace(/\n/g, '');
-        obj.code = string.replace(/^(.+?)\n\n\n/g, '').split(/\n/g);
+        if (string.match(/^(.+?)\n\n\n/g)) {
+          obj.title = string.match(/^(.+?)\n\n\n/g)[0].replace(/\n/g, '');
+          obj.code = string.replace(/^(.+?)\n\n\n/g, '').split(/\n/g);
+        } else {
+          obj.code = string.split(/\n/g);
+        }
         if (obj.code[obj.code.length - 1] === '') {
           obj.code.pop();
         }
