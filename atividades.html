@@ -358,6 +358,9 @@
             info.type = 'quote';
             info.data.text = parseStyleObjToEditor(struct.bubble.text);
             info.data.caption = String(struct.bubble.bottom === true);
+          } else if (struct.image) {
+            info.type = 'image';
+            info.data.url = struct.image;
           }
           block.push(info);
         });
@@ -377,6 +380,12 @@
               text: block.data.text,
               bottom: block.data.caption === 'true',
             };
+          } else if (block.type === 'image') {
+            if (block.data.url.length > 200) {
+              alert('Imagem inválida');
+              throw 'Imagem inválida';
+            }
+            data.image = block.data.url;
           }
           instructions.push(data);
         });
