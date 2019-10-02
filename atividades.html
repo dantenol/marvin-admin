@@ -10,9 +10,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/simple-image@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/quote@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@editorjs/code@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@editorjs/inline-code@latest"></script> -->
     <title>Atividades</title>
   </head>
 
@@ -32,7 +33,7 @@
         </select>
       </div>
       <div id="level">
-        <h2>ATIVIDADE</h2>
+        <h2>FASE</h2>
         <div class="row">
           <p>Título:</p>
           <input type="text" id="name" />
@@ -45,12 +46,14 @@
           <p>Nota mínima (%):</p>
           <input type="tel" id="minGrade" maxlength="4" />
         </div>
-        <button class="finish" onclick="send()">SALVAR MUDANÇAS DA FASE</button>
+        <button class="finish" onclick="saveInfo()">
+          SALVAR MUDANÇAS DA FASE
+        </button>
         <h2>Exercícios</h2>
         <div id="exercises">
           <button class="exercise" onclick="addExercise()">+</button>
         </div>
-        <div id="exerciseDetails" hidden>
+        <div id="exerciseDetails">
           <div class="row">
             <p>Nome:</p>
             <input type="text" id="chapterName" />
@@ -59,9 +62,40 @@
             <p>Caminho de submissão:</p>
             <input type="text" id="path" size="30" />
           </div>
-          <h1>Texto do nível</h1>
+          <a target="__blank" id="textLink">
+            <h1>Texto do nível</h1>
+          </a>
           <div id="editorjs"></div>
-          <h1>Testes</h1>
+          <button class="finish" onclick="saveExercise()">
+            SALVAR EXERCÍCIO
+          </button>
+          <div class="row">
+            <h1>Testes</h1>
+            <div class="JSONValidator" class=""></div>
+          </div>
+          <div id="tests">
+            <button class="wine" onclick="addTest()">
+              ADICIONAR TESTE
+            </button>
+          </div>
+          <button class="finish" onclick="saveCorrection()">
+            SALVAR TESTES
+          </button>
+          <br />
+          <br />
+          <br />
+          <br />
+          <h1>Testar código</h1>
+          <div id="testCode">
+            <div class="half">
+              <textarea placeholder="seu código" id="code"></textarea>
+              <button class="finish" onclick="testCode()">Testar</button>
+            </div>
+            <div class="half">
+              <p>Resultado</p>
+              <textarea readonly id="testResult"></textarea>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -70,7 +104,11 @@
       let course;
       let level;
       let exercise;
+      let exerciseNumber;
+      let tests = [];
+      let exerciseData;
 
+      // editor code
       const editor = new EditorJS({
         tools: {
           image: {
@@ -86,9 +124,19 @@
             class: CodeTool,
             shortcut: 'CMD+SHIFT+C',
           },
+          quote: {
+            class: Quote,
+            inlineToolbar: true,
+            config: {
+              quotePlaceholder: 'Fala do Marvin',
+              captionPlaceholder: 'Fim da página? (true ou false[padrão])',
+            },
+            shortcut: 'CMD+SHIFT+O',
+          },
         },
       });
 
+      // interaction listeners
       $('select#courses').on('change', function() {
         course = courses[this.value];
         courses[this.value].activities.forEach((e, i) => {
@@ -100,38 +148,375 @@
 
       $('select#levels').on('change', function() {
         level = course.activities[this.value];
-        $('#minGrade').val(level.minGrade);
+        $('#minGrade').val(level.minGrade * 100);
         $('#name').val(level.levelName);
         $('#description').val(level.levelDescription);
         $('#exercises').empty();
         $('#exercises').append(
-          '<button class="exercise" onClick="addExercise">+</button>',
+          '<button class="exercise" onClick="addExercise()">+</button>',
         );
-        level.exercises.forEach((e, i) => {
-          $('#exercises').prepend(
-            `<button class="exercise" id="ex${i}Button" onClick=selectExercise(${i})>${i}</button>`,
-          );
-        });
+
+        level.exercises
+          .sort((a, b) => (a > b ? 1 : -1))
+          .forEach((e, i) => {
+            $('#exercises').prepend(
+              `<button class="exercise" id="ex${i}Button" onClick=selectExercise(${i})>${e.number}</button>`,
+            );
+          });
       });
 
-      function addExercise() {
-        if (!level) {
-          alert('Selecione uma fase primeiro!');
-        }
-      }
       function selectExercise(n) {
-        if (exercise) {
-          $(`#ex${exercise}Button`).removeClass('selected');
+        if (exerciseNumber !== false) {
+          $(`#ex${exerciseNumber}Button`).removeClass('selected');
         }
-        exercise = n;
+        exercise = level.exercises[n];
+        exerciseNumber = n;
+        tests = [];
         $(`#ex${n}Button`).addClass('selected');
         editor.blocks.clear();
-        $('#exerciseDetails').show();
-        let selectedExercise = level.exercises[n];
-        $('#chapterName').val(selectedExercise.name);
-        $('#path').val(selectedExercise.path);
+        $('#textLink').attr(
+          'href',
+          `https://app.projetomarvin.com/pdf.html?${level.id}#pageEx${n}`,
+        );
+        $('#tests .testGroup').remove();
+        if (exercise) {
+          exerciseData = {
+            name: exercise.name,
+            path: exercise.path,
+            instructions: exercise.instructions,
+            corrections: exercise.corrections,
+          };
+        } else {
+          exerciseData = {
+            name: '',
+            path: '',
+            instructions: undefined,
+            corrections: undefined,
+          };
+        }
+
+        console.log(exerciseData);
+        $('#chapterName').val(exerciseData.name);
+        $('#path').val(exerciseData.path);
+        const parsedObj = objToEditor(exerciseData.instructions);
+        editor.blocks.render(parsedObj);
+
+        tests = [...exercise.corrections];
+        tests.forEach((c, i) => {
+          let code = `<div class="testGroup" id="test${i}">
+              <div class="cornerCheck">
+                <button class="deleteThis" onclick="deleteTest(${i})">
+                  <img src="assets/delete.svg" alt="delete" />
+                </button>
+              </div>
+              <div class="row">
+                <p>Parâmetro:</p>
+                <input type="text" id="param${i}" value="${toInput(c.param) ||
+            ''}" />
+              </div>
+              <div class="row">
+                <p>Retorno:</p>
+                <input type="text" id="result${i}" value="${toInput(c.result) ||
+            ''}" />
+              </div>
+              <div class="row">
+                <p>Console:</p>
+                <input type="text" id="output${i}" value="${toInput(c.output) ||
+            ''}" />
+              </div>
+            </div>`;
+          $('#tests')
+            .children(`:eq(${i})`)
+            .before(code);
+        });
       }
 
+      $('#tests').on('change paste keyup', "input[type='text']", function() {
+        const params = /([a-z]+)(\d+)/g.exec(this.id);
+        tests[Number(params[2])][params[1]] = parse($(this).val());
+      });
+
+      $(document).delegate('#code', 'keydown', function(e) {
+        const keyCode = e.keyCode || e.which;
+        if (keyCode == 9) {
+          e.preventDefault();
+          const start = $(this).get(0).selectionStart;
+          const end = $(this).get(0).selectionEnd;
+          $(this).val(
+            $(this)
+              .val()
+              .substring(0, start) +
+              '    ' +
+              $(this)
+                .val()
+                .substring(end),
+          );
+
+          $(this).get(0).selectionStart = $(this).get(0).selectionEnd =
+            start + 4;
+        }
+      });
+
+      function parse(str) {
+        $('.JSONValidator').css('background', '#0b0');
+        if (str === '') {
+          return undefined;
+        }
+        try {
+          return JSON.parse(str);
+        } catch {
+          $('.JSONValidator').css('background', '#b00');
+        }
+        try {
+          return eval(str);
+        } catch {
+          $('.JSONValidator').css('background', '#b00');
+        }
+      }
+
+      // editor parsing
+      function parseStyleEditorToObj(code) {
+        const strong = /<b>(.+?)<\/b>/g;
+        const italic = /<i>(.+?)<\/i>/g;
+        const href = /<a href="(.*?)">(.+?)<\/a>/g;
+
+        return code
+          .replace(italic, '__$1__')
+          .replace(strong, '**$1**')
+          .replace(href, '[$1]($2)');
+      }
+
+      function parseStyleObjToEditor(code) {
+        const strong = /\*\*(.+?)\*\*/g;
+        const italic = /\_\_(.+?)\_\_/g;
+        const href = /\[(.+?)\]\((.+?)\)/g;
+
+        return code
+          .replace(italic, '<i>$1</i>')
+          .replace(strong, '<b>$1</b>')
+          .replace(href, '<a href="$1" target="__blank">$2</a>');
+      }
+
+      function processExample_objToEditor({ title, code }) {
+        let txt = '';
+        if (title) {
+          txt += title + '\n\n\n';
+        }
+        code.forEach((line) => (txt += line + '\n'));
+        return txt;
+      }
+
+      function processExample_editorjToObj(string) {
+        const obj = { title: '', code: '' };
+        obj.title = string.match(/^(.+?)\n\n\n/g)[0].replace(/\n/g, '');
+        obj.code = string.replace(/^(.+?)\n\n\n/g, '').split(/\n/g);
+        if (obj.code[obj.code.length - 1] === '') {
+          obj.code.pop();
+        }
+        return obj;
+      }
+
+      function objToEditor(obj) {
+        const block = [];
+        obj.forEach((struct) => {
+          const info = { data: {} };
+          if (struct.bullet) {
+            info.type = 'paragraph';
+            info.data.text = parseStyleObjToEditor(struct.bullet);
+          } else if (struct.example) {
+            info.type = 'code';
+            info.data.code = processExample_objToEditor(struct.example);
+          } else if (struct.bubble) {
+            info.type = 'quote';
+            info.data.text = parseStyleObjToEditor(struct.bubble.text);
+            info.data.caption = String(struct.bubble.bottom === true);
+          }
+          block.push(info);
+        });
+        return { blocks: block };
+      }
+
+      function editorToObj(editor) {
+        const instructions = [];
+        editor.forEach((block) => {
+          const data = {};
+          if (block.type === 'paragraph') {
+            data.bullet = parseStyleEditorToObj(block.data.text);
+          } else if (block.type === 'code') {
+            data.example = processExample_editorjToObj(block.data.code);
+          } else if (block.type === 'quote') {
+            data.bubble = {
+              text: block.data.text,
+              bottom: block.data.caption === 'true',
+            };
+          }
+          instructions.push(data);
+        });
+        return instructions;
+      }
+
+      function toInput(value) {
+        if (value) {
+          const formated = JSON.stringify(value).replace(/\"/g, '&quot;');
+          return formated;
+        }
+      }
+
+      // actions
+      function addExercise() {
+        if (!level) return alert('Selecione uma fase primeiro!');
+
+        const numberOfChilds = $('#exercises').children().length;
+        const i = numberOfChilds - 1;
+
+        console.log(i);
+        $('#exercises')
+          .children(`:eq(${i - 1})`)
+          .after(
+            `<button class="exercise" id="ex${i}Button" onClick=selectExercise(${i})>${i}</button>`,
+          );
+        $(`#ex${i}Button`).click();
+      }
+
+      function deleteTest(i) {
+        tests.splice(i, 1);
+        $(`#test${i}`).remove();
+        $('.testGroup').each((idx, e) => {
+          const currIndex = e.id.match(/\d+/g);
+          $(e).attr('id', `test${idx}`);
+          $(`#param${currIndex}`).attr('id', `param${idx}`);
+          $(`#result${currIndex}`).attr('id', `result${idx}`);
+          $(`#output${currIndex}`).attr('id', `output${idx}`);
+          idx++;
+        });
+      }
+
+      function addTest() {
+        tests.push({});
+
+        const numberOfTests = $('#tests').children().length;
+        const i = numberOfTests - 1;
+
+        let code = `<div class="testGroup" id="test${i}">
+              <div class="cornerCheck">
+                <button class="deleteThis" onclick="deleteTest(${i})">
+                  <img src="assets/delete.svg" alt="delete" />
+                </button>
+              </div>
+              <div class="row">
+                <p>Parâmetro:</p>
+                <input type="text" id="param${i}" />
+              </div>
+              <div class="row">
+                <p>Retorno:</p>
+                <input type="text" id="result${i}" />
+              </div>
+              <div class="row">
+                <p>Console:</p>
+                <input type="text" id="output${i}" />
+              </div>
+            </div>`;
+        $('#tests')
+          .children(`:eq(${-1})`)
+          .before(code);
+      }
+
+      async function saveExercise() {
+        const newCode = await editor.save();
+        const currentExercise = { ...exercise };
+        const instructions = editorToObj(newCode.blocks);
+
+        const data = {
+          instructions,
+          name: $('#chapterName').val(),
+          path: $('#path').val(),
+          number: exerciseNumber + 1,
+        };
+
+        if (exerciseNumber === false) {
+          return false;
+        }
+        if (!exercise) {
+          await $.ajax({
+            url: `${url}pdfs/${level.id}/exercises?access_token=${localStorage.access_token}`,
+            crossDomain: true,
+            type: 'POST',
+            data,
+          });
+        } else {
+          await $.ajax({
+            url: `${url}pdfs/${level.id}/exercises/${exercise.id}?access_token=${localStorage.access_token}`,
+            crossDomain: true,
+            type: 'PUT',
+            data,
+          });
+        }
+
+        alert('Texto atualziado com sucesso!');
+      }
+
+      async function saveInfo() {
+        const data = {
+          minGrade: $('#minGrade').val() / 100,
+          levelName: $('#name').val(),
+          levelDescription: $('#description').val(),
+        };
+        console.log(data);
+
+        const update = await $.ajax({
+          url: `${url}pdfs/${level.id}?access_token=${localStorage.access_token}`,
+          crossDomain: true,
+          type: 'PATCH',
+          data,
+        });
+
+        alert('Informações atualizadas!');
+      }
+
+      async function saveCorrection() {
+        if (
+          $('.JSONValidator')
+            .css('background')
+            .includes('rgb(187, 0, 0)')
+        ) {
+          alert('Correção inválida!');
+        }
+
+        const update = await $.ajax({
+          url: `${url}pdfs/${level.id}/exercises/${exercise.id}?access_token=${localStorage.access_token}`,
+          crossDomain: true,
+          type: 'PUT',
+          dataType: 'json',
+          contentType: 'application/json',
+          data: JSON.stringify({ corrections: tests }),
+        });
+
+        alert('Testes salvos!');
+      }
+
+      async function testCode() {
+        const code = $('#code').val();
+
+        try {
+          const res = await $.ajax({
+            url: `${url}corrections/${exercise.id}/dryRun?access_token=${localStorage.access_token}`,
+            crossDomain: true,
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify({ code }),
+          });
+          const parsedResult = JSON.stringify(res, undefined, 4)
+            .replace(/\\n/g, '\n')
+            .replace(/\\\"/g, "'");
+
+          $('#testResult').val(parsedResult);
+        } catch (error) {
+          alert('Algo deu errado!');
+        }
+      }
+
+      // page load
       $(document).ready(function() {
         $.ajax({
           url:

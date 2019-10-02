@@ -100,7 +100,9 @@ main.fullwidth {
 }
 
 select,
-#activity input[type="text"] {
+#level input[type='text'],
+#level input[type='tel'],
+#level input[type='number'] {
   background: white;
   padding: 2px;
   margin: 16px;
@@ -109,7 +111,7 @@ select,
 }
 
 #selection,
-#activity {
+#level {
   text-align: center;
 }
 
@@ -117,27 +119,41 @@ select,
   display: inherit;
 }
 
-#activity {
+#level {
   width: 100%;
   /* background: #cecece; */
 }
 
-#activity .row {
+#level .row {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
 }
 
-#exercises .test:nth-child(odd) {
-  /* background-color: #bdbdbd; */
+#exercises {
+  display: flex;
+  justify-content: space-evenly;
+  margin-bottom: 24px;
 }
 
-#activity p {
+#exercises button.exercise {
+  border: 2px solid #009826;
+  background: white;
+  padding: 4px 24px;
+  font-size: 24px;
+}
+
+#exercises button.exercise.selected {
+  border: 2px solid white;
+  background: #009826;
+}
+
+#level p {
   font-size: 20px;
 }
 
-#activity button.finish {
+#level button.finish {
   padding: 8px;
   background: #009826;
   color: white;
@@ -147,7 +163,7 @@ select,
   margin: 8px;
 }
 
-#activity button.remove {
+#level button.remove {
   background: #d73333;
   color: white;
   font-size: 16px;
@@ -163,16 +179,6 @@ a.white_back {
   top: 16px;
   font-size: 32px;
   cursor: pointer;
-}
-
-.codeStatus {
-  position: fixed;
-  bottom: 16px;
-  right: 16px;
-  border-radius: 100%;
-  width: 48px;
-  height: 48px;
-  background: #0b0;
 }
 
 .table {
@@ -193,11 +199,16 @@ a.white_back {
 .row {
   display: flex;
   flex-direction: row;
-  /* width: 80%; */
   align-items: center;
 }
 
-.row * {
+.testGroup {
+  border: 4px solid darkgreen;
+  position: relative;
+  overflow: hidden;
+}
+
+#students .row * {
   width: calc(80vw / 6);
   padding: 8px;
   font-size: 18px;
@@ -251,7 +262,7 @@ a.white_back {
 
 #newStudent:active {
   box-shadow: none;
-  transition: .4s;
+  transition: 0.4s;
 }
 
 #addDialog {
@@ -276,7 +287,6 @@ a.white_back {
   min-width: 486px;
 }
 
-
 #closeButton {
   border: none;
   color: red;
@@ -295,4 +305,79 @@ a.white_back {
   margin-top: 24px;
   border: 2px solid;
   font-size: 24px;
+}
+
+#editorjs {
+  background: white;
+  border-radius: 8px;
+  border: 2px solid darkgrey;
+  text-align: initial;
+  padding-top: 24px;
+}
+
+.ce-block__content {
+  padding: 8px;
+  background: white;
+}
+
+.ce-block--focused {
+  background: #f7f7f7;
+}
+
+.ce-block--focused .ce-block__content {
+  border: 3px solid #aaa;
+  border-radius: 4px;
+}
+
+.JSONValidator {
+  width: 20px;
+  height: 20px;
+  margin-left: 24px;
+  border-radius: 50%;
+  background: #0b0;
+}
+
+.testGroup .deleteThis {
+  position: absolute;
+  right: 0;
+  background: darkred;
+  top: -100%;
+  text-align: center;
+  transition: top 0.5s ease;
+}
+
+.testGroup .cornerCheck {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 50px;
+  height: 50px;
+}
+
+.cornerCheck:hover .deleteThis {
+  top: 0;
+}
+
+#testCode {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+#testCode .half {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+}
+
+.half:first-child textarea {
+  height: 162px;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 4px;
+}
+
+.half:last-child textarea {
+  height: 184px;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 4px;
 }
