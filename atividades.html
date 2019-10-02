@@ -371,11 +371,11 @@
         if (!level) return alert('Selecione uma fase primeiro!');
 
         const numberOfChilds = $('#exercises').children().length;
-        const i = numberOfChilds - 1;
+        const i = numberOfChilds;
 
         console.log(i);
         $('#exercises')
-          .children(`:eq(${i - 1})`)
+          .children(`:eq(${i - 2})`)
           .after(
             `<button class="exercise" id="ex${i}Button" onClick=selectExercise(${i})>${i}</button>`,
           );
