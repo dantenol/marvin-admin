@@ -62,6 +62,12 @@
             <p>Caminho de submissão:</p>
             <input type="text" id="path" size="30" />
           </div>
+          <div class="row">
+            <p>Número do exercício</p>
+            <select id="number">
+              <option disabled selected value=""></option>
+            </select>
+          </div>
           <a target="__blank" id="textLink">
             <h1>Texto do nível</h1>
           </a>
@@ -158,18 +164,24 @@
 
         level.exercises
           .sort((a, b) => (a > b ? 1 : -1))
-          .forEach((e, i) => {
+          .forEach((e) => {
             $('#exercises').prepend(
-              `<button class="exercise" id="ex${i}Button" onClick=selectExercise(${i})>${e.number}</button>`,
+              `<button class="exercise" id="ex${e.number}Button" onClick=selectExercise(${e.number})>
+                ${e.number}
+              </button>`,
             );
           });
+      });
+
+      $('#number').on('change', function() {
+        $('.selected').text($(this).val());
       });
 
       function selectExercise(n) {
         if (exerciseNumber !== false) {
           $(`#ex${exerciseNumber}Button`).removeClass('selected');
         }
-        exercise = level.exercises[n];
+        exercise = level.exercises.find(e => e.number === n);
         exerciseNumber = n;
         tests = [];
         $(`#ex${n}Button`).addClass('selected');
@@ -185,6 +197,7 @@
             path: exercise.path,
             instructions: exercise.instructions,
             corrections: exercise.corrections,
+            number: exercise.number
           };
         } else {
           exerciseData = {
@@ -192,11 +205,13 @@
             path: '',
             instructions: undefined,
             corrections: undefined,
+            number: n,
           };
         }
 
         console.log(exerciseData);
         $('#chapterName').val(exerciseData.name);
+        $('#number').val(String(exerciseData.number));
         $('#path').val(exerciseData.path);
         const parsedObj = objToEditor(exerciseData.instructions);
         editor.blocks.render(parsedObj);
@@ -374,6 +389,7 @@
         const i = numberOfChilds;
 
         console.log(i);
+        $('number').val(i);
         $('#exercises')
           .children(`:eq(${i - 2})`)
           .after(
@@ -434,12 +450,15 @@
           instructions,
           name: $('#chapterName').val(),
           path: $('#path').val(),
-          number: exerciseNumber + 1,
+          number: Number($('#number').val()),
         };
 
-        if (exerciseNumber === false) {
-          return false;
+        if ($('#number').val() === null) {
+          return alert('Selecione o número do exercício');
+        } else if (!$('.selected').length) {
+          return alert('Selecione um exercício');
         }
+
         if (!exercise) {
           await $.ajax({
             url: `${url}pdfs/${level.id}/exercises?access_token=${localStorage.access_token}`,
@@ -531,11 +550,18 @@
           crossDomain: true,
           success: function(res, textStatus, jqXHR) {
             courses = res;
+            let idx = 0;
             res.map((e, i) => {
               $('select#courses').append(
                 '<option value=' + i + '>' + e.name + '</option>',
               );
             });
+            while (idx < 10) {
+              $('#number').append(
+                '<option value=' + idx + '>' + idx + '</option>',
+              );
+              idx++;
+            }
           },
           error: function(responseData, textStatus, errorThrown) {
             console.log(responseData);
