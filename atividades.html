@@ -151,11 +151,19 @@
       // interaction listeners
       $('select#courses').on('change', function() {
         course = courses[this.value];
-        courses[this.value].activities.forEach((e, i) => {
-          $('select#levels').append(
-            '<option value=' + i + '>' + i + ' - ' + e.levelName + '</option>',
-          );
-        });
+        courses[this.value].activities
+          .sort((a, b) => (a.levelNumber > b.levelNumber ? 1 : -1))
+          .forEach((e, i) => {
+            $('select#levels').append(
+              '<option value=' +
+                i +
+                '>' +
+                i +
+                ' - ' +
+                e.levelName +
+                '</option>',
+            );
+          });
         $('#newLevel').show();
       });
 
@@ -570,7 +578,7 @@
             levelName: 'Nova fase',
             levelDescription: 'Nova descrição',
             minGrade: 1,
-            courseId: course.id
+            courseId: course.id,
           }),
         });
 
@@ -578,11 +586,13 @@
       }
 
       async function deleteLevel() {
-        alert("Você realmente quer excluir essa fase?");
-        const res = await prompt("Para confirmar, digite o nome/título dessa fase");
+        alert('Você realmente quer excluir essa fase?');
+        const res = await prompt(
+          'Para confirmar, digite o nome/título dessa fase',
+        );
         if (res !== level.levelName) {
           console.log(res, level.levelName);
-          alert('Cancelado')
+          alert('Cancelado');
           return;
         }
 
