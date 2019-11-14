@@ -1,50 +1,49 @@
 <!DOCTYPE html>
 <html lang="pt" dir="ltr">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/master.css" />
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <meta http-equiv="refresh" content="60" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./helper.js" charset="utf-8"></script>
+    <title>Marvin</title>
+  </head>
 
-<head>
-  <link rel="stylesheet" href="/css/index.css">
-  <link rel="stylesheet" href="/css/master.css">
-  <meta charset="utf-8">
-  <link rel="shortcut icon" href="assets/favicon.ico">
-  <meta http-equiv="refresh" content="60">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="./helper.js" charset="utf-8"></script>
-  <title>Marvin</title>
-</head>
+  <body>
+    <main>
+      <div class="logout">
+        <button type="button" class="wine" onclick="logout()">Sair</button>
+      </div>
+      <!-- <a href="#">
+        <h1>Gerenciar cursos</h1>
+      </a> -->
+      <a href="/atividades.html">
+        <h1>Gerenciar atividades</h1>
+      </a>
+      <a href="/alunos.html">
+        <h1>Gerenciar alunos</h1>
+      </a>
+    </main>
+    <script type="text/javascript">
+      function logout() {
+        localStorage.removeItem("userId");
+        localStorage.removeItem("access_token");
+        location.href = "/index.html";
+      }
 
-<body>
-  <main>
-    <div class="logout">
-      <button type="button" class="wine" onclick="logout()">Sair</button>
-    </div>
-    <a href="#">
-    <h1>Gerenciar cursos</h1>
-  </a>
-    <a href="/atividades.html">
-    <h1>Gerenciar atividades</h1>
-  </a>
-    <a href="/alunos.html">
-    <h1>Gerenciar alunos</h1>
-  </a>
-  </main>
-  <script type="text/javascript">
-  function logout() {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('access_token');
-    location.href = '/index.html'
-  }
-
-  $(document).ready(function(){
-  $.ajax({ url: url + 'courses?access_token=' + localStorage.access_token,
-    context: document.body,
-    error: function(){
-       alert("Login expirado");
-       localStorage.removeItem('access_token'),
-       location.href='/index.html'
-    }
-  });
-  });
-  </script>
-</body>
-
+      $(document).ready(function() {
+        $.ajax({
+          url: url + "courses?access_token=" + localStorage.access_token,
+          context: document.body,
+          error: function() {
+            alert("Login expirado");
+            localStorage.removeItem("access_token"),
+              (location.href = "/index.html");
+          }
+        });
+      });
+    </script>
+  </body>
 </html>
