@@ -586,7 +586,7 @@
       }
 
       async function createLevel() {
-        await $.ajax({
+        const act = await $.ajax({
           url: `${url}pdfs?access_token=${localStorage.access_token}`,
           crossDomain: true,
           type: 'POST',
@@ -597,10 +597,16 @@
             levelName: 'Nova fase',
             levelDescription: 'Nova descrição',
             minGrade: 1,
-            courseId: course.id,
           }),
         });
-
+        console.log(act);
+        await $.ajax({
+          url: `${url}courses/${course.id}/activities/rel/${act.id}?access_token=${localStorage.access_token}`,
+          crossDomain: true,
+          type: 'PUT',
+          dataType: 'json',
+          contentType: 'application/json',
+        })
         window.location.reload();
       }
 
