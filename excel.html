@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/css/master.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="shortcut icon" href="assets/favicon.ico" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./helper.js" charset="utf-8"></script>
+    <title>Excel</title>
+  </head>
+
+  <body>
+    <main class="vertical">
+      <a class="white_back" onclick="location.href='/alunos.html'">
+        &#11013;
+      </a>
+      <div id="excel">
+        <div class="table">
+          <div class="row">
+            <span>Usuáro</span>
+            <span>Fase</span>
+            <span>Corrigir</span>
+          </div>
+        </div>
+      </div>
+      <div id="correction" hidden>
+        <h3>Cole o resultado da correção de&nbsp;</h3>
+        <textarea id="correctionText" cols="100" rows="30"></textarea>
+        <br>
+        <button id="correctButton" onclick="correct()">Finalizar</button>
+      </div>
+    </main>
+    <script type="text/javascript">
+      let stus;
+      async function update() {
+        try {
+          stus = await $.ajax({
+            type: "get",
+            url:
+              url +
+              "students/pending/course/" +
+              location.search.replace("?", "") +
+              "?access_token=" +
+              localStorage.access_token,
+            crossDomain: true
+          });
+          console.log(stus);
+          $("#excel .table .row").not(':first').remove();
+          stus.forEach((stu, i) => {
+            if (stu.studentActivities[0] && stu.studentActivities[0].corrections[0]) {
+              $('#excel .table').append(
+                `<div class="row">
+                  <div>${stu.email}</div>
+                  <div>${stu.activityNumber}</div>
+                  <button onclick="selectAct('${i}')">corrigir</button>
+                </div>`
+              );
+            }
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      function selectAct(idx) {
+        const act = stus[idx].studentActivities
+        window.open(act[0].fileUrl, '_blank');
+        $("#correction").show();
+        $("#correction h3").append(stus[idx].email);
+      }
+
+      function correct() {
+        const eval = {};
+        const val = $("#correctionText").val();
+        const results = val.matchAll(/EXERCICIO\s(\d):\s([A-Z]+)/g);
+        for (const match of results) {
+          console.log(match);
+          const ex = 'ex0' + match[1];
+          eval[ex] = match[2] === "CORRETO"
+        }
+        console.log(eval);
+      }
+
+      $(document).ready(function() {
+        update();
+        setInterval(update, 30000);
+      });
+    </script>
+  </body>
+</html>

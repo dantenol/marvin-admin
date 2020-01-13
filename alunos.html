@@ -45,6 +45,9 @@
         </div>
       </div>
     </div>
+    <button id="excelButton" onclick="goToExcel()" style="display: none;" hidden>
+      excel
+    </button>
     <button id="newStudent" onclick="newStudent()" style="display: none;">
       Novo aluno
     </button>
@@ -62,12 +65,17 @@
     course = courses[i];
     courseNumber = i
     $('#students .table .row').slice(1).remove();
+    if (course.type === "excel") {
+      $("#excelButton").show();
+    } else {
+      $("#excelButton").hide();
+    }
     let CPoints = 0;
     courses[i].students.map((e, i) => {
       CPoints += e.correctionPoints;
       $('#students .table').append(
         `<div class="row">
-          <div>${e.username}</div>
+          <div>${e.username || e.email}</div>
           <input type="text" value="${e.coins}" size="10" id="coins${e.id}">
           <div>${e.activityNumber}</div>
           <input type="text" value="${e.correctionPoints}" size="10" id="CP${e.id}">
@@ -103,6 +111,12 @@
 
   function newStudent() {
     $('#addDialog').show();
+  }
+  
+  function goToExcel() {
+    const url = "/excel?" + course.id;
+    console.log(url);
+    location.href = "/excel?" + course.id;
   }
 
   function closeDialog() {

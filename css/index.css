@@ -214,6 +214,12 @@ a.white_back {
   font-size: 18px;
 }
 
+#excel .row * {
+  width: calc(80vw / 3);
+  padding: 8px;
+  font-size: 18px;
+}
+
 .row input {
   margin-right: 32px;
   margin: 8px;
@@ -257,6 +263,30 @@ a.white_back {
   font-size: 32px;
   text-transform: uppercase;
   border-radius: 8px;
+  box-shadow: 1px 3px 6px rgb(99, 99, 99);
+}
+
+#excelButton {
+  width: 80vh;
+  margin-top: 20px;
+  padding: 16px;
+  background: rgb(7, 140, 0);
+  color: white;
+  font-size: 32px;
+  text-transform: uppercase;
+  border-radius: 8px;
+  box-shadow: 1px 3px 6px rgb(99, 99, 99);
+}
+
+#correctButton {
+  width: 40vh;
+  margin-top: 20px;
+  padding: 8px;
+  background: rgb(7, 140, 0);
+  color: white;
+  font-size: 18px;
+  text-transform: uppercase;
+  border-radius: 4px;
   box-shadow: 1px 3px 6px rgb(99, 99, 99);
 }
 
