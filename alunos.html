@@ -77,7 +77,7 @@
         `<div class="row">
           <div>${e.username || e.email}</div>
           <input type="text" value="${e.coins}" size="10" id="coins${e.id}">
-          <div>${e.activityNumber}</div>
+          <input type="text" value="${e.activityNumber}" size="10" id="l${e.id}">
           <input type="text" value="${e.correctionPoints}" size="10" id="CP${e.id}">
           <a href="#" onclick="correction('${e.id}')">
           <div class="${e.availableUntil === "correction" && "correction"}" id="panic${e.id}"></div>
@@ -101,9 +101,11 @@
        data[$(this).prop('id')[0]] = $(this).val();
     })
     delete data.p;
+    data.activityNumber = data.l;
     data.coins = data.c;
-    delete data.c;
     data.correctionPoints = data.C;
+    delete data.c;
+    delete data.l;
     delete data.C;
     console.log(data);
     patch(id, data)
