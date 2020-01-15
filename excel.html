@@ -33,6 +33,8 @@
     </main>
     <script type="text/javascript">
       let stus;
+      let id;
+
       async function update() {
         try {
           stus = await $.ajax({
@@ -66,20 +68,40 @@
       function selectAct(idx) {
         const act = stus[idx].studentActivities
         window.open(act[0].fileUrl, '_blank');
+        id = act[0].corrections[0].id;
         $("#correction").show();
         $("#correction h3").append(stus[idx].email);
       }
 
-      function correct() {
+      async function correct() {
         const eval = {};
         const val = $("#correctionText").val();
         const results = val.matchAll(/EXERCICIO\s(\d):\s([A-Z]+)/g);
         for (const match of results) {
-          console.log(match);
           const ex = 'ex0' + match[1];
           eval[ex] = match[2] === "CORRETO"
         }
         console.log(eval);
+        try {
+          const stus = await $.ajax({
+            type: 'patch',
+            url: url + 'corrections/' + id + '/excel/marvinCorrection',
+            crossDomain: true,
+            contentType: "application/json; charset=utf-8",
+            dataType:'json',
+            data: JSON.stringify({ marvinCorrector: eval, message: val }),
+          });
+          console.log(stus);
+          await $.ajax({
+              type: 'post',
+              url: url + 'corrections/' + id + '/excel/finish',
+              crossDomain: true,
+          });
+          alert("Correção feita com sucesso:\n" + JSON.stringify(stus));
+          window.location.reload();
+        } catch (error) {
+          console.log(error);
+        }
       }
 
       $(document).ready(function() {
