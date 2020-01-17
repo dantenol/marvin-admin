@@ -227,6 +227,11 @@
       url: url + 'courses?access_token=' + localStorage.access_token,
       crossDomain: true,
       success: function(res, textStatus, jqXHR) {
+        if (!courses) {
+          res.forEach((e) => {
+            $('select#courses').append('<option value='+e.id+'>'+e.name+'</option>');
+          });
+        }
         courses = res;
         if (curr) {
           $('select#courses').val(curr);
