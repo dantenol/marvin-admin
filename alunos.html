@@ -35,13 +35,14 @@
     <div id="students">
       <div class="table">
         <div class="row">
-          <span>Usuáro</span>
-          <span>Coins</span>
-          <span>Fase</span>
-          <span>Pontos</span>
-          <span>Corrigindo</span>
-          <span>PÂNICO</span>
-          <span></span>
+          <div>Usuáro</div>
+          <div>Coins</div>
+          <div>Fase</div>
+          <div>Pontos</div>
+          <div>Corrigindo</div>
+          <div>PÂNICO</div>
+          <div onclick="swichBlock()">Bloqueado</div>
+          <div></div>
         </div>
       </div>
     </div>
@@ -55,24 +56,36 @@
   <script type="text/javascript">
   let courses;
   let course;
-  let courseNumber;
+  let courseId;
+  let classBlocked = false;
 
   $('select#courses').on('change', function() {
-    loadCourse(this.value)
+    window.location.search = this.value;
   });
 
-  function loadCourse(i) {
-    course = courses[i];
-    courseNumber = i
+  async function loadCourse(id) {
+    const res = await $.ajax({
+      url: url + 'courses/' + id +'/studentsAndCorrections?access_token=' + localStorage.access_token,
+      crossDomain: true,
+    });
+    console.log(res);
+    courseId = id;
+    course = res;
     $('#students .table .row').slice(1).remove();
-    if (course.type === "excel") {
+    if (res.type === "excel") {
       $("#excelButton").show();
     } else {
       $("#excelButton").hide();
     }
     let CPoints = 0;
-    courses[i].students.map((e, i) => {
+    res.students.map((e, i) => {
       CPoints += e.correctionPoints;
+      let correctionText = '';
+      if (e.corrigindo) {
+        correctionText = 'corrigindo ' + e.corrigindo
+      } else if (e.corrigido_por) {
+        correctionText = 'corrigido por ' + e.corrigido_por
+      }
       $('#students .table').append(
         `<div class="row">
           <div>${e.username || e.email}</div>
@@ -80,16 +93,21 @@
           <input type="text" value="${e.activityNumber}" size="10" id="l${e.id}">
           <input type="text" value="${e.correctionPoints}" size="10" id="CP${e.id}">
           <a href="#" onclick="correction('${e.id}')">
-          <div class="${e.availableUntil === "correction" && "correction"}" id="panic${e.id}"></div>
+          <div class="${e.availableUntil === "correction" && "correction"}" id="panic${e.id}">
+            ${correctionText}
+          </div>
           </a>
           <a href="#" onclick="panic('${e.id}')">
             <div class="${e.panic && "panic"}" id="panic${e.id}"></div>
+          </a>
+          <a href="#" onclick="block('${e.id}', ${!e.blocked})">
+            <div class="${e.blocked && "panic"}" id="panic${e.id}"></div>
           </a>
           <button onclick="save('${e.id}')">Salvar</button>
         </div>`
       );
     })
-    const avg = CPoints/course.students.length;
+    const avg = CPoints/res.students.length;
     $('#newStudent').show();
     $('#totalCP').empty();
     $('#totalCP').append('Correção: ' + CPoints + ', média: ' + Math.round(avg * 100) / 100);
@@ -138,7 +156,7 @@
           type: 'post',
           url: url + 'courses/' + course.id +'/students/?access_token=' + localStorage.access_token,
           crossDomain: true,
-          data: {email: e, password: 'projetomarvin'},
+          data: {email: e.toLowerCase(), password: 'projetomarvin'},
           success: function(responseData, textStatus, jqXHR) {
             alert('Usuário ' + e + ' criado com sucesso!');
           },
@@ -156,6 +174,10 @@
     patch(id, {panic: null});
   }
 
+  function block (id, value) {
+    patch(id, {blocked: Boolean(value)});
+  }
+
   function correction(id) {
     patch(id, {availableUntil: "available"});
   }
@@ -165,10 +187,13 @@
         type: 'patch',
         url: url + 'students/' + id + '?access_token=' + localStorage.access_token,
         crossDomain: true,
-        data: data,
+        data: JSON.stringify(data),
+        contentType: "application/json; charset=utf-8",
+        dataType:'json',
         success: function(responseData, textStatus, jqXHR) {
           $(`#panic${id}`).removeClass('panic');
           alert('Alteração realizada com sucesso!');
+          update();
         },
         error: function(responseData, textStatus, errorThrown) {
           alert('Algo deu errado' + JSON.stringify(responseData))
@@ -176,28 +201,51 @@
       })
   }
 
-  function update(curr = courseNumber) {
+  async function swichBlock(courseId) {
+      const sts = course.students.map(s => s.id);
+      const promises = sts.map(async s => {
+        await $.ajax({
+          type: 'patch',
+          url: url + 'students/' + s + '?access_token=' + localStorage.access_token,
+          crossDomain: true,
+          data: JSON.stringify({blocked: !classBlocked}),
+          contentType: "application/json; charset=utf-8",
+          dataType:'json',
+          error: function(responseData, textStatus, errorThrown) {
+            alert('Algo deu errado' + JSON.stringify(responseData))
+          }
+        })
+      });
+      await Promise.all(promises);
+      alert('feito');
+      classBlocked = !classBlocked;
+      update();
+  }
+
+  function update(curr = courseId) {
     $.ajax({
-      url: url + 'courses/?filter={"include":"students"}&access_token=' + localStorage.access_token,
+      url: url + 'courses?access_token=' + localStorage.access_token,
       crossDomain: true,
       success: function(res, textStatus, jqXHR) {
         courses = res;
-        res.map((e, i) => {
-          $('select#courses').append('<option value='+i+'>'+e.name+'</option>');
-        });
         if (curr) {
           $('select#courses').val(curr);
           loadCourse(curr);
+        } else {
+          res.map((e, i) => {
+            $('select#courses').append('<option value='+e.id+'>'+e.name+'</option>');
+          });
         }
       },
       error: function(responseData, textStatus, errorThrown) {
-        console.log(responseData);;
+        console.log(responseData);
       }
     })
   }
 
   $(document).ready(function() {
-    update();
+    const id = window.location.search.slice(1);
+    update(id);
     setInterval(update, 30000)
   })
 
