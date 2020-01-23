@@ -257,10 +257,6 @@
         if (curr) {
           $('select#courses').val(curr);
           loadCourse(curr);
-        } else {
-          res.map((e, i) => {
-            $('select#courses').append('<option value='+e.id+'>'+e.name+'</option>');
-          });
         }
       },
       error: function(responseData, textStatus, errorThrown) {
