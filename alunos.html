@@ -58,6 +58,8 @@
   let course;
   let courseId;
   let classBlocked = false;
+  let forcedCorrections;
+  let facilitatorId;
 
   $('select#courses').on('change', function() {
     window.location.search = this.value;
@@ -78,17 +80,21 @@
       $("#excelButton").hide();
     }
     let CPoints = 0;
-    res.students.map((e, i) => {
+    res.students.forEach((e, i) => {
       CPoints += e.correctionPoints;
       let correctionText = '';
       if (e.corrigindo) {
-        correctionText = 'corrigindo ' + e.corrigindo
+        correctionText = 'corrigindo ' + e.corrigindo;
       } else if (e.corrigido_por) {
-        correctionText = 'corrigido por ' + e.corrigido_por
+        correctionText = 'corrigido por ' + e.corrigido_por;
+      } else if (e.username.includes('facilitador')) {
+        forcedCorrections = e.forcedCorrections;
+        facilitatorId = e.id;
+        return;
       }
       $('#students .table').append(
-        `<div class="row">
-          <div>${e.username || e.email}</div>
+        `<div class="row" id="${e.id}">
+          <div class="username" onclick="toggleForceCorrection('${e.id}')">${e.username || e.email}</div>
           <input type="text" value="${e.coins}" size="10" id="coins${e.id}">
           <input type="text" value="${e.activityNumber}" size="10" id="l${e.id}">
           <input type="text" value="${e.correctionPoints}" size="10" id="CP${e.id}">
@@ -111,6 +117,11 @@
     $('#newStudent').show();
     $('#totalCP').empty();
     $('#totalCP').append('Correção: ' + CPoints + ', média: ' + Math.round(avg * 100) / 100);
+    if (forcedCorrections) {
+      forcedCorrections.forEach(s => {
+        $(`#${s} .username`).addClass("force");
+      })
+    }
   }
 
   function save(id) {
@@ -133,6 +144,16 @@
     $('#addDialog').show();
   }
   
+  function toggleForceCorrection(userId) {
+    const newArr = [...forcedCorrections];
+    if (newArr.includes(userId)) {
+      newArr.splice(newArr.indexOf(userId), 1);
+    } else {
+      newArr.push(userId);
+    }
+    patch(facilitatorId, { forcedCorrections: newArr });
+  }
+
   function goToExcel() {
     const url = "/excel?" + course.id;
     console.log(url);

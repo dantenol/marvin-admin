@@ -410,3 +410,7 @@ a.white_back {
   font-family: 'Courier New', Courier, monospace;
   padding: 4px;
 }
+
+.username.force {
+  color: #ad0bd4;
+}
